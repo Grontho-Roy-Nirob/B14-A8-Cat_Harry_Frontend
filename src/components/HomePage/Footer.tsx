@@ -149,7 +149,7 @@ export default function Footer() {
               <input
                 type="email"
                 aria-label="Email address"
-                placeholder="you@example.com"
+                placeholder="you@gmail.com"
                 className="h-10 min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus-visible:border-[#f97316] focus-visible:ring-3 focus-visible:ring-[#f97316]/20"
               />
               <Button
