@@ -59,7 +59,7 @@ export default function LoginPage() {
     const { data, error } = await authClient.signIn.email({ ...user })
 
     if (data) {
-      redirect("/login")
+      redirect("/")
     }
 
     if (error) {
@@ -69,7 +69,10 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setToast(null)
-    const { error } = await authClient.signIn.social({ provider: "google" })
+    const { error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/",
+    })
 
     if (error) {
       setToast(error.message ?? "Could not continue with Google. Please try again.")
