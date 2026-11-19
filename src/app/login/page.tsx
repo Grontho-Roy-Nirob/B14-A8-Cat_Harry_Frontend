@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { Check, CircleExclamationPoint, Eye, EyeOff, X } from "lucide-react"
+import { Check, Eye, EyeOff } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -21,6 +21,7 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { toast } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth-client"
 
 type LoginForm = {
@@ -47,11 +48,9 @@ const promoPoints = [
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
-  const [toast, setToast] = useState<string | null>(null)
 
   const handleEmailLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setToast(null)
 
     const formData = new FormData(event.currentTarget)
     const user = Object.fromEntries(formData.entries()) as LoginForm
@@ -59,46 +58,40 @@ export default function LoginPage() {
     const { data, error } = await authClient.signIn.email({ ...user })
 
     if (data) {
+      toast.add({
+        type: "success",
+        title: "Welcome back!",
+        description: "You're signed in.",
+      })
       redirect("/")
     }
 
     if (error) {
-      setToast("Incorrect email or password. Please try again.")
+      toast.add({
+        type: "error",
+        title: "Sign-in failed",
+        description: "That email and password don't match. Please try again.",
+      })
     }
   }
 
   const handleGoogleLogin = async () => {
-    setToast(null)
     const { error } = await authClient.signIn.social({
       provider: "google",
       callbackURL: "/",
     })
 
     if (error) {
-      setToast(error.message ?? "Could not continue with Google. Please try again.")
+      toast.add({
+        type: "error",
+        title: "Google sign-in didn't work",
+        description: error.message ?? "We couldn't continue with Google. Please try again.",
+      })
     }
   }
 
   return (
     <main className="flex min-h-[calc(100vh-5.5rem)] items-center justify-center bg-[#f4f5fa] p-4 sm:p-6 lg:p-10">
-      {toast && (
-        <div
-          role="alert"
-          className="fixed top-4 right-4 z-50 flex max-w-sm items-start gap-3 rounded-xl border border-red-100 bg-white px-4 py-3 shadow-lg"
-        >
-          <CircleExclamationPoint className="mt-0.5 size-5 shrink-0 text-destructive" />
-          <p className="text-sm leading-snug text-[#141b2d]">{toast}</p>
-          <button
-            type="button"
-            aria-label="Dismiss notification"
-            onClick={() => setToast(null)}
-            className="ml-auto rounded-md p-0.5 text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-      )}
-
       <div className="grid w-full max-w-6xl overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-24px_rgba(15,23,42,0.25)] lg:min-h-[680px] lg:grid-cols-2">
         <section className="flex w-full items-center justify-center bg-white px-5 py-10 sm:px-10 lg:px-14">
           <Card className="w-full max-w-md border-0 bg-transparent shadow-none">

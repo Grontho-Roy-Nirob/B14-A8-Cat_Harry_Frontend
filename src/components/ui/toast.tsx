@@ -35,7 +35,7 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
     <ToastPrimitive.Root
       data-slot="toast"
       className={cn(
-        "group/toast pointer-events-auto absolute right-0 bottom-0 z-[calc(1000-var(--toast-index))] w-full origin-bottom rounded-2xl border bg-popover text-popover-foreground shadow-lg will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        "group/toast pointer-events-auto absolute right-0 bottom-0 z-[calc(1000-var(--toast-index))] w-full origin-bottom rounded-2xl border border-border/80 bg-popover text-popover-foreground shadow-[0_18px_50px_-20px_rgba(15,23,42,0.5)] will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
         "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
         "h-(--height) [transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))] [transition:transform_500ms_cubic-bezier(0.22,1,0.36,1),opacity_500ms,height_150ms]",
         "after:absolute after:top-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
@@ -62,7 +62,7 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
     <ToastPrimitive.Content
       data-slot="toast-content"
       className={cn(
-        "flex h-full items-center gap-3 overflow-hidden p-4 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
+        "flex h-full items-center gap-3.5 overflow-hidden px-4 py-3.5 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
         className
       )}
       {...props}
@@ -74,7 +74,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
   return (
     <ToastPrimitive.Title
       data-slot="toast-title"
-      className={cn("text-sm font-medium", className)}
+      className={cn("text-sm font-semibold tracking-tight", className)}
       {...props}
     />
   )
@@ -87,7 +87,7 @@ function ToastDescription({
   return (
     <ToastPrimitive.Description
       data-slot="toast-description"
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-sm leading-relaxed text-muted-foreground", className)}
       {...props}
     />
   )
@@ -179,11 +179,22 @@ function ToastIcon({ type }: { type: string | undefined }) {
   )
 }
 
+const toastAccents: Record<string, string> = {
+  success: "border-l-4 border-l-emerald-500",
+  info: "border-l-4 border-l-sky-500",
+  warning: "border-l-4 border-l-amber-500",
+  error: "border-l-4 border-l-destructive",
+}
+
 function ToastList() {
   const { toasts } = ToastPrimitive.useToastManager()
 
   return toasts.map((toastItem) => (
-    <Toast key={toastItem.id} toast={toastItem}>
+    <Toast
+      key={toastItem.id}
+      toast={toastItem}
+      className={toastAccents[toastItem.type ?? ""]}
+    >
       <ToastContent>
         <ToastIcon type={toastItem.type} />
         <div className="flex min-w-0 flex-1 flex-col gap-1">

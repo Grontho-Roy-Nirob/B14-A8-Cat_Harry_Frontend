@@ -19,6 +19,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/toast";
 import { forgotPassword } from "@/components/authentication/route";
 
 const passwordRules = [
@@ -56,13 +57,11 @@ export default function ForgotPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEmailCheck = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
     setIsSubmitting(true);
 
     const result = await forgotPassword(email);
@@ -70,7 +69,11 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(false);
 
     if (!result.ok) {
-      setError(result.error || "Could not check this email. Please try again.");
+      toast.add({
+        type: "error",
+        title: "Email not found",
+        description: result.error ?? "We couldn't check this email. Please try again.",
+      });
       return;
     }
 
@@ -79,27 +82,38 @@ export default function ForgotPasswordPage() {
 
   const handlePasswordReset = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
 
     if (!passwordRules.every((rule) => rule.passes(password))) {
-      setError(
-        "Password must include an uppercase letter, a lowercase letter, and at least 6 characters."
-      );
+      toast.add({
+        type: "warning",
+        title: "Check your new password",
+        description: "Use an uppercase letter, a lowercase letter, and at least 6 characters.",
+      });
       return;
     }
     if (!passwordRules.every((rule) => rule.passes(confirmPassword))) {
-      setError(
-        "Confirm password must include an uppercase letter, a lowercase letter, and at least 6 characters."
-      );
+      toast.add({
+        type: "warning",
+        title: "Check your confirmation",
+        description: "The confirmation needs an uppercase letter, a lowercase letter, and 6+ characters.",
+      });
       return;
     }
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      toast.add({
+        type: "error",
+        title: "Passwords don't match",
+        description: "Both entries need to be exactly the same. Give it another try.",
+      });
       return;
     }
 
     if (!matchedEmail) {
-      setError("Please check your email again.");
+      toast.add({
+        type: "error",
+        title: "Email needed",
+        description: "Please check your email again before setting a new password.",
+      });
       return;
     }
 
@@ -109,10 +123,19 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(false);
 
     if (!result.ok) {
-      setError(result.error || "Could not update your password. Please try again.");
+      toast.add({
+        type: "error",
+        title: "Couldn't update your password",
+        description: result.error ?? "Something went wrong. Please try again.",
+      });
       return;
     }
 
+    toast.add({
+      type: "success",
+      title: "Password updated!",
+      description: "You can now sign in with your new password.",
+    });
     setSuccess(true);
   };
 
@@ -202,11 +225,6 @@ export default function ForgotPasswordPage() {
                   />
                   <PasswordChecklist value={confirmPassword} />
                 </Field>
-                {error && (
-                  <p role="alert" className="text-sm text-destructive">
-                    {error}
-                  </p>
-                )}
                 <Field>
                   <Button type="submit" variant="brand" className="w-full" disabled={isSubmitting}>
                     {isSubmitting ? "Saving..." : "Save new password"}
@@ -218,7 +236,6 @@ export default function ForgotPasswordPage() {
                         setMatchedEmail(null);
                         setPassword("");
                         setConfirmPassword("");
-                        setError(null);
                       }}
                       className="inline-flex items-center gap-1 font-semibold text-brand hover:underline"
                     >
@@ -245,11 +262,6 @@ export default function ForgotPasswordPage() {
                     required
                   />
                 </Field>
-                {error && (
-                  <p role="alert" className="text-sm text-destructive">
-                    {error}
-                  </p>
-                )}
                 <Field>
                   <Button type="submit" variant="brand" className="w-full" disabled={isSubmitting}>
                     {isSubmitting ? "Checking..." : "Continue"}

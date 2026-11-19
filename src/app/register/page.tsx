@@ -16,6 +16,7 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { toast } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 
@@ -75,7 +76,6 @@ function GoogleIcon() {
 export default function RegisterPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [photo, setPhoto] = useState<{ name: string; dataUrl: string } | null>(null)
   const [photoError, setPhotoError] = useState<string | null>(null)
 
@@ -105,7 +105,6 @@ export default function RegisterPage() {
 
   const handleEmailSignUp = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setError(null)
 
     const formData = new FormData(event.currentTarget)
     const user = Object.fromEntries(formData.entries()) as SignUpForm
@@ -114,20 +113,32 @@ export default function RegisterPage() {
     const { data, error } = await authClient.signUp.email({ ...user })
 
     if (data) {
+      toast.add({
+        type: "success",
+        title: "Account created!",
+        description: "Welcome to StudioSpace. Let's get you signed in.",
+      })
       redirect("/login")
     }
 
     if (error) {
-      setError(error.message ?? "Could not create your account. Please try again.")
+      toast.add({
+        type: "error",
+        title: "We couldn't create your account",
+        description: error.message ?? "Please check your details and try again.",
+      })
     }
   }
 
   const handleGoogleSignUp = async () => {
-    setError(null)
     const { error } = await authClient.signIn.social({ provider: "google" })
 
     if (error) {
-      setError(error.message ?? "Could not continue with Google. Please try again.")
+      toast.add({
+        type: "error",
+        title: "Google sign-up didn't work",
+        description: error.message ?? "We couldn't continue with Google. Please try again.",
+      })
     }
   }
 
@@ -310,12 +321,6 @@ export default function RegisterPage() {
                       })}
                     </ul>
                   </Field>
-
-                  {error && (
-                    <p role="alert" className="text-sm text-destructive">
-                      {error}
-                    </p>
-                  )}
 
                   <Field>
                     <Button type="submit" variant="brand" className="w-full">
