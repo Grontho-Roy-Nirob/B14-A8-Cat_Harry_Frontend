@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import {
   CalendarDays,
   Check,
-  ChevronLeft,
   ChevronRight,
   MapPin,
   Pencil,
@@ -24,27 +23,6 @@ function rating(id: string) {
   const sum = id.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   return (4 + (sum % 10) / 10).toFixed(1);
 }
-
-const reviews = [
-  {
-    name: "Mehnaz Ahmed",
-    role: "Product photographer",
-    text: "The cyc wall was spotless and the host had the strobes warmed up before I arrived.",
-    score: "5.0",
-  },
-  {
-    name: "Sabbir Hossain",
-    role: "Video producer",
-    text: "Plenty of daylight and enough room for a small crew. Booking was simple.",
-    score: "4.8",
-  },
-  {
-    name: "Tania Nasrin",
-    role: "Fashion stylist",
-    text: "The makeup corner saved us a second location. The deposit came back the next day.",
-    score: "4.9",
-  },
-];
 
 const StudioDetailsPage = async ({
   params,
@@ -85,74 +63,16 @@ const StudioDetailsPage = async ({
           <span className="text-foreground">{studio.title}</span>
         </nav>
 
-        {/* Gallery */}
-        <div className="mt-4">
-          <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">
-            <div className="relative h-72 overflow-hidden rounded-xl bg-slate-100 md:h-96">
-              <Image
-                src={studio.imageUrl}
-                alt={studio.title}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 66vw"
-                className="object-cover"
-              />
-              <span className="absolute bottom-3 left-3 rounded bg-white/90 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-foreground uppercase">
-                Photo &mdash; main view
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
-              <div className="relative h-32 overflow-hidden rounded-xl bg-orange-50 md:h-44">
-                <Image
-                  src={studio.imageUrl}
-                  alt="Lighting grid"
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 33vw"
-                  className="object-cover object-top"
-                />
-                <span className="absolute bottom-2 left-2 rounded bg-white/90 px-2 py-1 text-[9px] font-semibold tracking-wide text-foreground uppercase">
-                  Photo &mdash; lighting grid
-                </span>
-              </div>
-              <div className="relative h-32 overflow-hidden rounded-xl bg-green-50 md:h-44">
-                <Image
-                  src={studio.imageUrl}
-                  alt="Makeup corner"
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 33vw"
-                  className="object-cover object-bottom"
-                />
-                <span className="absolute bottom-2 left-2 rounded bg-white/90 px-2 py-1 text-[9px] font-semibold tracking-wide text-foreground uppercase">
-                  Photo &mdash; makeup corner
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="mt-4 flex items-center gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-sm"
-              className="size-8 rounded-full bg-white"
-            >
-              <ChevronLeft />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-sm"
-              className="size-8 rounded-full bg-white"
-            >
-              <ChevronRight />
-            </Button>
-            <div className="flex items-center gap-1.5">
-              <span className="h-1.5 w-8 rounded-full bg-[#f97316]" />
-              <span className="h-1.5 w-5 rounded-full bg-slate-300" />
-              <span className="h-1.5 w-5 rounded-full bg-slate-300" />
-              <span className="h-1.5 w-5 rounded-full bg-slate-300" />
-            </div>
-            <span className="text-xs text-muted-foreground">1 / 4 photos</span>
-          </div>
+        {/* Main image */}
+        <div className="relative mt-4 h-72 w-full overflow-hidden rounded-xl bg-slate-100 md:h-96">
+          <Image
+            src={studio.imageUrl}
+            alt={studio.title}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
         </div>
 
         {/* Details */}
@@ -165,7 +85,7 @@ const StudioDetailsPage = async ({
               </span>
               <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-[#ea580c]">
                 <Star className="size-3 fill-[#ea580c] text-[#ea580c]" />
-                {rating(studio._id)} &middot; 38 reviews
+                {rating(studio._id)}
               </span>
             </div>
 
@@ -217,40 +137,8 @@ const StudioDetailsPage = async ({
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Hosted by</p>
                 <p className="text-sm font-semibold text-foreground">{studio.ownerName}</p>
-                <p className="text-xs text-muted-foreground">Verified host &middot; replies within an hour</p>
+                <p className="text-xs text-muted-foreground">{studio.ownerEmail}</p>
               </div>
-              <Button variant="outline" className="rounded-lg text-xs">
-                Message host
-              </Button>
-            </div>
-
-            <div className="mt-8 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-foreground">What creators say</h2>
-              <p className="text-xs text-muted-foreground">4.9 average from 38 reviews</p>
-            </div>
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              {reviews.map((review) => (
-                <div
-                  key={review.name}
-                  className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="grid size-9 place-items-center rounded-full bg-slate-100 text-xs font-semibold text-foreground">
-                      {review.name.slice(0, 2).toUpperCase()}
-                    </span>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">{review.name}</p>
-                      <p className="text-xs text-muted-foreground">{review.role}</p>
-                    </div>
-                  </div>
-                  <span className="mt-3 inline-block rounded bg-orange-50 px-2 py-1 text-xs font-semibold text-[#ea580c]">
-                    {review.score}
-                  </span>
-                  <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                    {review.text}
-                  </p>
-                </div>
-              ))}
             </div>
           </div>
 

@@ -40,30 +40,38 @@ const amenities = [
   "Parking",
 ];
 
-// Read a selected file and shrink it before storing it in the Image URL field.
+// Shrink the image until the base64 string fits Express's default ~100 KB body limit.
 const resizeImage = (file: File) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error("Could not read the file."));
     reader.onload = () => {
-      const dataUrl = String(reader.result);
+      const original = String(reader.result);
       const image = new window.Image();
-      image.onerror = () => resolve(dataUrl);
+      image.onerror = () => reject(new Error("Could not load the image."));
       image.onload = () => {
-        const max = 900;
-        const scale = Math.min(1, max / Math.max(image.width, image.height));
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(image.width * scale);
-        canvas.height = Math.round(image.height * scale);
-        const context = canvas.getContext("2d");
-        if (!context) {
-          resolve(dataUrl);
-          return;
+        for (const max of [900, 700, 500, 350]) {
+          const scale = Math.min(1, max / Math.max(image.width, image.height));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(image.width * scale);
+          canvas.height = Math.round(image.height * scale);
+          const context = canvas.getContext("2d");
+          if (!context) break;
+
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+          for (const quality of [0.7, 0.55, 0.4]) {
+            const output = canvas.toDataURL("image/jpeg", quality);
+            if (output.length <= 90000) {
+              resolve(output);
+              return;
+            }
+          }
         }
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.65));
+
+        reject(new Error("Image is too large. Please use a smaller image."));
       };
-      image.src = dataUrl;
+      image.src = original;
     };
     reader.readAsDataURL(file);
   });
@@ -158,10 +166,9 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
       toast.add({
         type: "error",
         title: "Could not save studio",
-        description:
-          data?.message ??
-          data?.error ??
-          "Please check the form and try again.",
+        description: `Server returned ${res.status}. ${
+          data?.message ?? data?.error ?? "Please check the form and try again."
+        }`,
       });
       return;
     }
@@ -179,6 +186,15 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
+
+    if (imageUrl.length > 90000) {
+      toast.add({
+        type: "error",
+        title: "Image too large",
+        description: "Please upload a smaller photo or paste an image URL.",
+      });
+      return;
+    }
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/add-studio`, {

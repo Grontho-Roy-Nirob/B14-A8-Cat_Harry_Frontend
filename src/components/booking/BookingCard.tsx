@@ -32,6 +32,7 @@ const BookingCard = ({ studio }: { studio: IStudio }) => {
         studioId: studio._id,
         studioTitle: studio.title,
         studioImage: studio.imageUrl,
+        location: studio.location,
         ownerEmail: studio.ownerEmail,
         name: session?.user?.name ?? "",
         email: session?.user?.email ?? "",

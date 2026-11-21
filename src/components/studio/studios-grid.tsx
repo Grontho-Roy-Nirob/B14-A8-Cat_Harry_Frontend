@@ -6,7 +6,6 @@ import {
   ArrowUpRight,
   ChevronLeft,
   ChevronRight,
-  Heart,
   MapPin,
   Search,
   Star,
@@ -44,7 +43,6 @@ export function StudiosGrid({ studios }: { studios: IStudio[] }) {
   const [price, setPrice] = useState("any");
   const [sort, setSort] = useState("rating");
   const [page, setPage] = useState(1);
-  const [favorites, setFavorites] = useState<string[]>([]);
 
   const filtered = studios.filter((studio) => {
     const term = query.toLowerCase();
@@ -72,11 +70,6 @@ export function StudiosGrid({ studios }: { studios: IStudio[] }) {
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const currentPage = Math.min(page, totalPages);
   const visible = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-  const toggleFavorite = (id: string) =>
-    setFavorites((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
-    );
 
   return (
     <>
@@ -174,7 +167,7 @@ export function StudiosGrid({ studios }: { studios: IStudio[] }) {
       </section>
 
       {/* Grid */}
-      <section className="w-full bg-[#f4f5fa] px-6 py-10">
+      <section className="w-full bg-[#f8f9fa] px-6 py-10">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {visible.map((studio) => (
@@ -193,20 +186,6 @@ export function StudiosGrid({ studios }: { studios: IStudio[] }) {
                   <span className="absolute top-3 left-3 rounded-md bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm">
                     {studio.category}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => toggleFavorite(studio._id)}
-                    aria-label="Add to favorites"
-                    className="absolute top-3 right-3 grid size-8 place-items-center rounded-full bg-white/95 shadow-sm"
-                  >
-                    <Heart
-                      className={
-                        favorites.includes(studio._id)
-                          ? "size-4 fill-[#ea580c] text-[#ea580c]"
-                          : "size-4 text-foreground"
-                      }
-                    />
-                  </button>
                   <span className="absolute bottom-3 left-3 rounded bg-white/95 px-2 py-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase shadow-sm">
                     Photo &mdash; {studio.category}
                   </span>

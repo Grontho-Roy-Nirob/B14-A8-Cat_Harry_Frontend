@@ -14,7 +14,7 @@ async function Studios() {
 
 function StudiosSkeleton() {
   return (
-    <section className="w-full bg-background px-6 py-12">
+    <section className="w-full bg-[#f8f9fa] px-6 py-12">
       <div className="mx-auto max-w-7xl">
         <div className="h-12 w-96 max-w-full animate-pulse rounded-md bg-muted" />
         <div className="mt-4 h-4 w-72 max-w-full animate-pulse rounded-md bg-muted" />

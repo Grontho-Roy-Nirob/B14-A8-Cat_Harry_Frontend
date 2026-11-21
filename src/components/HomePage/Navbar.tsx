@@ -6,6 +6,7 @@ import {
   Building2,
   CalendarCheck,
   ChevronDown,
+  ClipboardList,
   Globe,
   LogIn,
   LogOut,
@@ -46,7 +47,8 @@ const navLinks = [
 
 const accountLinks = [
   { label: "Add New Studio", href: "/add-studio", icon: PlusCircle },
-  { label: "My Studio Listings", href: "/my-studios", icon: Building2 },
+  { label: "My Studio Listings", href: "/my-listings", icon: Building2 },
+  { label: "Host Bookings", href: "/host-bookings", icon: ClipboardList },
   { label: "My Bookings", href: "/my-bookings", icon: CalendarCheck },
 ];
 
