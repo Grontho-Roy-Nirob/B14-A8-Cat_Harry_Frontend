@@ -20,10 +20,9 @@ route by `src/app/layout.tsx`. `/` is still an empty `<div>`.
   `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
   `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_CLIENT_URL`.
 - Auth lives **in this frontend**, not the API: `src/lib/auth.ts` (Better Auth + MongoDB adapter,
-  email/password min length 6, Google OAuth) is meant to be mounted by
-  `src/app/api/auth/[...all]/route.ts`; the browser uses `src/lib/auth-client.ts`
-  (`BETTER_AUTH_URL`). Don't add a second `/api/auth` route. **That route file is currently
-  0 bytes**, so client sign-in/sign-up calls have no handler yet — don't assume auth works end to end.
+  email/password min length 6, Google OAuth) is mounted by `src/app/api/auth/[...all]/route.ts`
+  via `toNextJsHandler(auth)`; the browser uses `src/lib/auth-client.ts` (`BETTER_AUTH_URL`).
+  Don't add a second `/api/auth` route — sign-in/sign-up/social calls do have a handler.
 - Forgot-password is a custom `"use server"` action in `src/components/authentication/route.ts`
   (despite the name, not an API route): looks up the user via Better Auth's internal adapter,
   hashes and writes the new password, and deletes existing sessions. No email is sent.
@@ -64,7 +63,7 @@ route by `src/app/layout.tsx`. `/` is still an empty `<div>`.
 
 - Built pages: `/login`, `/register`, `/forgot-password` (client UI using `authClient` / the
   forgot-password action).
-- `PagePlaceholder` stubs: `/add-studio`, `/my-bookings`, `/my-studios`, `/studios`.
-- 0-byte placeholders: `src/app/api/auth/[...all]/route.ts`, `src/app/edit-studio/[id]/page.tsx`,
-  `src/app/studios/[id]/page.tsx`, `src/lib/api.ts`,
-  `src/components/studio/{StudioCard,StudioForm}.tsx`. Unfinished work, not broken files.
+- `PagePlaceholder` stubs: `/add-studio`, `/edit-studio/[id]`, `/my-bookings`, `/my-studios`,
+  `/studios`, `/studios/[id]`.
+- Still 0-byte (unfinished, not broken): `src/lib/api.ts`,
+  `src/components/studio/{StudioCard,StudioForm}.tsx`.
