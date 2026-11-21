@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CalendarDays } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,8 @@ import type { IStudio } from "@/lib/types/studios";
 const hours = ["9:00", "10:00", "11:00", "12:00", "1:00", "2:00", "3:00", "4:00", "5:00"];
 
 const BookingCard = ({ studio }: { studio: IStudio }) => {
-  const { data: session } = authClient.useSession();
+  const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -103,6 +105,18 @@ const BookingCard = ({ studio }: { studio: IStudio }) => {
   };
 
   const handleSubmit = async () => {
+    if (isPending) return;
+
+    if (!session?.user?.email) {
+      toast.add({
+        type: "error",
+        title: "Sign in required",
+        description: "Please sign in to book a studio.",
+      });
+      router.push("/login");
+      return;
+    }
+
     if (hoursCount === 0) {
       toast.add({
         type: "error",
@@ -304,7 +318,7 @@ const BookingCard = ({ studio }: { studio: IStudio }) => {
       <Button
         type="button"
         onClick={handleSubmit}
-        disabled={hoursCount === 0 || !date || rangeOverlaps}
+        disabled={isPending || hoursCount === 0 || !date || rangeOverlaps}
         className="mt-5 h-11 w-full rounded-lg bg-[#f97316] text-white hover:bg-[#ea580c]"
       >
         Book Workspace Now

@@ -102,11 +102,11 @@ export function StudiosGrid({ studios }: { studios: IStudio[] }) {
             </p>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-3">
             <div className="relative min-w-64 flex-1">
-              <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                className="h-11 rounded-lg border-slate-200 bg-white pl-9"
+                className="h-10 rounded-lg border-slate-200 bg-white pl-9 text-sm"
                 placeholder="Search by studio name or area"
                 value={query}
                 onChange={(event) => {
@@ -115,33 +115,42 @@ export function StudiosGrid({ studios }: { studios: IStudio[] }) {
                 }}
               />
             </div>
-            <Select
-              value={price}
-              onValueChange={(value) => {
-                setPrice(value ?? "any");
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="h-11 w-36 rounded-lg border-slate-200 bg-white">
-                <SelectValue placeholder="Any price" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any price</SelectItem>
-                <SelectItem value="under50">Under $50</SelectItem>
-                <SelectItem value="50to100">$50 - $100</SelectItem>
-                <SelectItem value="over100">Over $100</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sort} onValueChange={(value) => setSort(value ?? "rating")}>
-              <SelectTrigger className="h-11 w-36 rounded-lg border-slate-200 bg-white">
-                <SelectValue placeholder="Top rated" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="rating">Top rated</SelectItem>
-                <SelectItem value="price-low">Price: low to high</SelectItem>
-                <SelectItem value="price-high">Price: high to low</SelectItem>
-              </SelectContent>
-            </Select>
+
+            <div className="w-full sm:w-36">
+              <Select
+                value={price}
+                onValueChange={(value) => {
+                  setPrice(value ?? "any");
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="h-10 w-full rounded-lg border-slate-200 bg-white text-sm">
+                  <SelectValue placeholder="Any price" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any price</SelectItem>
+                  <SelectItem value="under50">Under $50</SelectItem>
+                  <SelectItem value="50to100">$50 - $100</SelectItem>
+                  <SelectItem value="over100">Over $100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="w-full sm:w-36">
+              <Select
+                value={sort}
+                onValueChange={(value) => setSort(value ?? "rating")}
+              >
+                <SelectTrigger className="h-10 w-full rounded-lg border-slate-200 bg-white text-sm">
+                  <SelectValue placeholder="Top rated" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rating">Top rated</SelectItem>
+                  <SelectItem value="price-low">Price: low to high</SelectItem>
+                  <SelectItem value="price-high">Price: high to low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">

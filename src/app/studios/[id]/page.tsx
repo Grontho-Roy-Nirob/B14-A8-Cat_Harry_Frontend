@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import {
   CalendarDays,
   Check,
@@ -15,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import BookingCard from "@/components/booking/BookingCard";
 import DeleteStudioDialog from "@/components/studio/DeleteStudioDialog";
+import { auth } from "@/lib/auth";
 import type { IStudio } from "@/lib/types/studios";
 
 // Deterministic pseudo-rating from the id (the API has no rating/review field)
@@ -29,6 +31,9 @@ const StudioDetailsPage = async ({
   params: Promise<{ id: string }>;
 }) => {
   const { id } = await params;
+
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) redirect("/login");
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/studio/${id}`, {
     cache: "no-store",
