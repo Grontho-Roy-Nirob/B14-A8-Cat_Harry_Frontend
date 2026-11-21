@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
+import type { IBooking } from "@/lib/types/booking";
 import type { IStudio } from "@/lib/types/studios";
 
 const hours = ["9:00", "10:00", "11:00", "12:00", "1:00", "2:00", "3:00", "4:00", "5:00"];
@@ -17,6 +18,44 @@ const BookingCard = ({ studio }: { studio: IStudio }) => {
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("12:00");
   const [endTime, setEndTime] = useState("1:00");
+  const [bookedHours, setBookedHours] = useState<string[]>([]);
+
+  const email = session?.user?.email;
+  const lookupEmail = studio.ownerEmail || email;
+
+  useEffect(() => {
+    if (!lookupEmail) return;
+
+    const loadConfirmedHours = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${lookupEmail}`,
+          { cache: "no-store" }
+        );
+        const bookings: IBooking[] = await res.json();
+        const blocked = new Set<string>();
+
+        bookings.forEach((booking) => {
+          if (booking.studioId !== studio._id) return;
+          if (booking.status !== "Confirmed" && booking.status !== "Completed") return;
+
+          const start = hours.indexOf(booking.startTime ?? "");
+          const end = hours.indexOf(booking.endTime ?? "");
+          if (start === -1 || end === -1) return;
+
+          for (let index = start; index < end; index += 1) {
+            blocked.add(hours[index]);
+          }
+        });
+
+        setBookedHours([...blocked]);
+      } catch {
+        // If the API is unavailable, no slots are blocked locally.
+      }
+    };
+
+    void loadConfirmedHours();
+  }, [lookupEmail, studio._id]);
 
   const startIndex = hours.indexOf(startTime);
   const endIndex = hours.indexOf(endTime);
@@ -25,33 +64,72 @@ const BookingCard = ({ studio }: { studio: IStudio }) => {
   const total = subtotal + studio.securityDeposit;
 
   const handleSubmit = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/booking`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        studioId: studio._id,
-        studioTitle: studio.title,
-        studioImage: studio.imageUrl,
-        location: studio.location,
-        ownerEmail: studio.ownerEmail,
-        name: session?.user?.name ?? "",
-        email: session?.user?.email ?? "",
-        date,
-        startTime,
-        endTime,
-        totalPrice: total,
-      }),
-    });
+    const selectedSlots = hours.slice(startIndex, endIndex);
 
-    await res.json();
+    if (selectedSlots.some((slot) => bookedHours.includes(slot))) {
+      toast.add({
+        type: "error",
+        title: "Slot unavailable",
+        description: "Please choose another time.",
+      });
+      return;
+    }
 
-    toast.add({
-      type: res.ok ? "success" : "error",
-      title: res.ok ? "Booking request sent" : "Booking request failed",
-      description: res.ok
-        ? "You won't be charged until the host confirms."
-        : "Please try again.",
-    });
+    const booking = {
+      studioId: studio._id,
+      studioTitle: studio.title,
+      studioImage: studio.imageUrl,
+      location: studio.location,
+      ownerEmail: studio.ownerEmail,
+      name: session?.user?.name ?? "",
+      email: session?.user?.email ?? "",
+      date,
+      startTime,
+      endTime,
+      totalPrice: total,
+    };
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/booking`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(booking),
+      });
+      const inserted = (await res.json().catch(() => null)) as
+        | { insertedId?: string }
+        | null;
+
+      if (!res.ok) throw new Error("Booking failed");
+
+      // Host notification record: stored under the owner's email so the host
+      // dashboard can read it with the existing /my-bookings/:email endpoint.
+      if (studio.ownerEmail && studio.ownerEmail !== booking.email) {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/booking`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...booking,
+            email: studio.ownerEmail,
+            guestEmail: booking.email,
+            guestName: booking.name,
+            bookingRef: inserted?.insertedId ? String(inserted.insertedId) : "",
+            isHostNotification: true,
+          }),
+        });
+      }
+
+      toast.add({
+        type: "success",
+        title: "Booking request sent",
+        description: "The host has been notified. You won't be charged until confirmed.",
+      });
+    } catch {
+      toast.add({
+        type: "error",
+        title: "Booking request failed",
+        description: "Please try again.",
+      });
+    }
   };
 
   return (
@@ -78,26 +156,37 @@ const BookingCard = ({ studio }: { studio: IStudio }) => {
       <div className="mt-4 grid gap-2">
         <Label>Pick your hours</Label>
         <div className="grid grid-cols-3 gap-2">
-          {hours.map((hour) => (
-            <button
-              key={hour}
-              type="button"
-              onClick={() => {
-                if (startTime === "" || endTime !== "") setStartTime(hour);
-                else setEndTime(hour);
-              }}
-              className={
-                hour === startTime || hour === endTime
-                  ? "h-9 rounded-lg bg-[#1e293b] text-xs font-medium text-white"
-                  : "h-9 rounded-lg border border-slate-200 bg-white text-xs font-medium text-foreground"
-              }
-            >
-              {hour}
-            </button>
-          ))}
+          {hours.map((hour) => {
+            const isBooked = bookedHours.includes(hour);
+            const isSelected = hour === startTime || hour === endTime;
+
+            return (
+              <button
+                key={hour}
+                type="button"
+                disabled={isBooked}
+                onClick={() => {
+                  if (isBooked) return;
+                  if (startTime === "" || endTime !== "") setStartTime(hour);
+                  else setEndTime(hour);
+                }}
+                className={[
+                  "h-9 rounded-lg text-xs font-medium",
+                  isBooked
+                    ? "cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400 line-through"
+                    : isSelected
+                      ? "bg-[#1e293b] text-white"
+                      : "border border-slate-200 bg-white text-foreground hover:border-slate-300",
+                ].join(" ")}
+              >
+                {hour}
+              </button>
+            );
+          })}
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Start {startTime} &middot; End {endTime}. Crossed-out slots are already confirmed.
+          Start {startTime} &middot; End {endTime}.
+          {bookedHours.length > 0 && " Confirmed slots are unavailable."}
         </p>
       </div>
 

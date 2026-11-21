@@ -10,10 +10,12 @@ const tabs = ["All bookings", "Pending", "Confirmed", "Cancelled"];
 const MyBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
   const [active, setActive] = useState("All bookings");
 
+  const userBookings = bookings.filter((booking) => !booking.isHostNotification);
+
   const visible =
     active === "All bookings"
-      ? bookings
-      : bookings.filter((booking) => (booking.status || "Pending") === active);
+      ? userBookings
+      : userBookings.filter((booking) => (booking.status || "Pending") === active);
 
   return (
     <>

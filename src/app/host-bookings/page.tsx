@@ -10,9 +10,13 @@ const HostBookingsPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
   const email = session?.user?.email ?? "";
 
-  // TODO: replace the empty array with a host-bookings API response when available.
-  // Example: GET ${NEXT_PUBLIC_API_URL}/host-bookings/${email}
-  const bookings: IBooking[] = [];
+  // Host notification records are stored under the owner's email by POST /booking.
+  // This reuses the existing /my-bookings/:email endpoint — no new API needed.
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${email}`,
+    { cache: "no-store" }
+  );
+  const bookings: IBooking[] = await res.json();
 
   return (
     <main className="min-h-[calc(100vh-5.5rem)] bg-[#f8f9fa]">

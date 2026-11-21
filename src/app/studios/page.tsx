@@ -33,7 +33,7 @@ function StudiosSkeleton() {
               className="h-72 animate-pulse rounded-sm border border-border bg-muted/50"
             />
           ))}
-        </div>
+        </div>. 
       </div>
     </section>
   );

@@ -16,4 +16,8 @@ export interface IBooking {
   totalPrice?: number;
   price?: number;
   status?: string;
+  isHostNotification?: boolean;
+  bookingRef?: string;
+  guestEmail?: string;
+  guestName?: string;
 }

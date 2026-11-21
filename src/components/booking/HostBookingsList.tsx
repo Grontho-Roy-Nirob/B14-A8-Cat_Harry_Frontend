@@ -27,23 +27,30 @@ const title = (booking: IBooking) =>
 const HostBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
   const router = useRouter();
 
+  const hostRequests = bookings.filter(
+    (booking) => booking.isHostNotification || booking.bookingRef
+  );
+
   const updateStatus = async (booking: IBooking, action: "confirm" | "reject") => {
     const isConfirm = action === "confirm";
+    const ids = [booking._id, booking.bookingRef].filter(Boolean) as string[];
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${booking._id}${
-        isConfirm ? "/confirm" : ""
-      }`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: isConfirm ? undefined : JSON.stringify({ status: "Cancelled" }),
-      }
+    const results = await Promise.all(
+      ids.map((id) =>
+        fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${id}${
+            isConfirm ? "/confirm" : ""
+          }`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: isConfirm ? undefined : JSON.stringify({ status: "Cancelled" }),
+          }
+        )
+      )
     );
 
-    await res.json().catch(() => null);
-
-    if (!res.ok) {
+    if (results.some((res) => !res.ok)) {
       toast.add({
         type: "error",
         title: isConfirm ? "Could not confirm booking" : "Could not reject booking",
@@ -60,7 +67,7 @@ const HostBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
     router.refresh();
   };
 
-  if (bookings.length === 0) {
+  if (hostRequests.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center">
         <span className="mx-auto grid size-12 place-items-center rounded-full bg-orange-50 text-[#ea580c]">
@@ -70,7 +77,7 @@ const HostBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
           No host booking requests yet
         </p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Host booking requests will appear here once a host-bookings API is available.
+          New booking requests for your studios will appear here.
         </p>
       </div>
     );
@@ -78,7 +85,7 @@ const HostBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      {bookings.map((booking) => {
+      {hostRequests.map((booking) => {
         const status = booking.status || "Pending";
 
         return (
@@ -124,7 +131,8 @@ const HostBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
                   </div>
 
                   <p className="mt-3 text-sm text-muted-foreground">
-                    Requested by {booking.name || "—"} &middot; {booking.email || "—"}
+                    Requested by {booking.guestName || booking.name || "—"} &middot;{" "}
+                    {booking.guestEmail || booking.email || "—"}
                   </p>
                 </div>
 
