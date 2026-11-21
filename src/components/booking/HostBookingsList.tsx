@@ -132,7 +132,7 @@ const HostBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
 
                   <p className="mt-3 text-sm text-muted-foreground">
                     Requested by {booking.guestName || booking.name || "—"} &middot;{" "}
-                    {booking.guestEmail || booking.email || "—"}
+                    {booking.customerEmail || booking.guestEmail || booking.email || "—"}
                   </p>
                 </div>
 
@@ -167,7 +167,15 @@ const HostBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
 
                     {(status === "Confirmed" || status === "Completed") && (
                       <Button
-                        onClick={() => downloadInvoice(booking)}
+                        onClick={() =>
+                          void downloadInvoice({
+                            ...booking,
+                            email:
+                              booking.customerEmail ??
+                              booking.guestEmail ??
+                              booking.email,
+                          })
+                        }
                         variant="outline"
                         className="gap-2"
                       >

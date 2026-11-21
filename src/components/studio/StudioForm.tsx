@@ -88,7 +88,11 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
   const [customAmenities, setCustomAmenities] = useState<string[]>([]);
   const [customValue, setCustomValue] = useState("");
 
-  const ownerName = session?.user?.name ?? studio?.ownerName ?? "";
+  const ownerName =
+    session?.user?.name ??
+    studio?.ownerName ??
+    session?.user?.email?.split("@")[0] ??
+    "";
   const ownerEmail = session?.user?.email ?? studio?.ownerEmail ?? "";
   const allAmenities = [...amenities, ...customAmenities];
 

@@ -7,7 +7,6 @@ import {
   ChevronRight,
   MapPin,
   Pencil,
-  Ruler,
   ShieldCheck,
   Star,
   Users,
@@ -41,7 +40,6 @@ const StudioDetailsPage = async ({
     { label: "Hourly rate", value: `$${studio.hourlyRate}`, icon: CalendarDays },
     { label: "Security deposit", value: `$${studio.securityDeposit}`, icon: ShieldCheck },
     { label: "Max capacity", value: `${studio.maxCapacity} people`, icon: Users },
-    { label: "Floor area", value: studio.floorArea ?? "—", icon: Ruler },
   ];
 
   return (
@@ -97,7 +95,7 @@ const StudioDetailsPage = async ({
               {studio.location}
             </p>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-4">
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {specs.map(({ label, value, icon: Icon }) => (
                 <div
                   key={label}

@@ -110,7 +110,7 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
 
               {(status === "Confirmed" || status === "Completed") && (
                 <Button
-                  onClick={() => downloadInvoice(booking)}
+                  onClick={() => void downloadInvoice(booking)}
                   variant="outline"
                   className="gap-2"
                 >

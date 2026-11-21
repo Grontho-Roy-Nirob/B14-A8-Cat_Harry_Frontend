@@ -1,11 +1,33 @@
 import { jsPDF } from "jspdf";
 
 import type { IBooking } from "@/lib/types/booking";
+import type { IStudio } from "@/lib/types/studios";
 
 const text = (value?: string | number) =>
   value === undefined || value === null || value === "" ? "—" : String(value);
 
-export function downloadInvoice(booking: IBooking) {
+export async function downloadInvoice(booking: IBooking) {
+  let ownerName = booking.ownerName;
+  let ownerEmail = booking.ownerEmail;
+
+  // Older bookings may not have ownerName/ownerEmail stored. Fall back to the
+  // studio record using the existing GET /studio/:id endpoint.
+  if ((!ownerName || !ownerEmail) && booking.studioId) {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/studio/${booking.studioId}`,
+        { cache: "no-store" }
+      );
+      if (res.ok) {
+        const studio: IStudio = await res.json();
+        ownerName = ownerName || studio.ownerName;
+        ownerEmail = ownerEmail || studio.ownerEmail;
+      }
+    } catch {
+      // Keep the values already present on the booking.
+    }
+  }
+
   const doc = new jsPDF();
 
   doc.setFillColor(249, 115, 22);
@@ -38,33 +60,39 @@ export function downloadInvoice(booking: IBooking) {
   doc.text(text(booking.location), 16, 91);
   doc.text(text(booking.email), 110, 91);
 
+  doc.setFont("helvetica", "bold");
+  doc.text("Host", 16, 103);
+  doc.setFont("helvetica", "normal");
+  doc.text(text(ownerName), 16, 111);
+  doc.text(text(ownerEmail), 16, 118);
+
   doc.setDrawColor(226, 232, 240);
-  doc.line(16, 100, 194, 100);
+  doc.line(16, 126, 194, 126);
 
   doc.setFont("helvetica", "bold");
-  doc.text("Booking details", 16, 112);
+  doc.text("Booking details", 16, 138);
   doc.setFont("helvetica", "normal");
-  doc.text(`Date: ${text(booking.date ?? booking.bookingDate)}`, 16, 121);
+  doc.text(`Date: ${text(booking.date ?? booking.bookingDate)}`, 16, 147);
   doc.text(
     `Time: ${text(booking.startTime)} - ${text(booking.endTime)}`,
     16,
-    129
+    155
   );
 
   doc.setDrawColor(226, 232, 240);
-  doc.line(16, 138, 194, 138);
+  doc.line(16, 164, 194, 164);
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.text("Total", 16, 150);
-  doc.text(`$${text(booking.totalPrice ?? booking.price)}`, 194, 150, {
+  doc.text("Total", 16, 176);
+  doc.text(`$${text(booking.totalPrice ?? booking.price)}`, 194, 176, {
     align: "right",
   });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(100, 116, 139);
-  doc.text("Thank you for booking with StudioSpace.", 16, 170);
+  doc.text("Thank you for booking with StudioSpace.", 16, 196);
 
   doc.save(`studiospace-invoice-${booking._id}.pdf`);
 }

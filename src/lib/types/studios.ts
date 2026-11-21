@@ -11,5 +11,4 @@ export interface IStudio {
   overview: string;
   ownerName: string;
   ownerEmail: string;
-  floorArea?: string;
 }
