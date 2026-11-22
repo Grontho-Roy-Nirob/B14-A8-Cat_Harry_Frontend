@@ -24,17 +24,18 @@ components using the repo's Embla-based `components/ui/carousel.tsx`.
   `PageProps` / `LayoutProps` don't exist until typegen or a dev/build run).
 - No test runner or test script — don't invent test commands.
 - Baseline `npm run lint` exits 1 with 2 pre-existing `react-hooks/set-state-in-effect` errors
-  (`src/hooks/use-mobile.ts`, generated `src/components/ui/carousel.tsx`) and 1 unused-import
-  warning (`Image` in `src/app/page.tsx`). Add no new errors.
+  (`src/hooks/use-mobile.ts`, generated `src/components/ui/carousel.tsx`), 0 warnings. Add no new errors.
 
 ## Backend, data flow and env
 
 - Express API is a separate repo at `../B14-A8-Cat_Harry_Backend` (port 8000); start it separately
   for any data-backed page. There is no API client layer (`src/lib/api.ts` does not exist):
   server components and client components call `fetch(`${NEXT_PUBLIC_API_URL}/...`)` directly,
-  usually with `cache: "no-store"`. Shapes in `src/lib/types/{studios,booking}.ts` are hand-written,
-  not generated.
-- Endpoints in use: `GET /studios`, `/studio/:id`, `/my-listings/:email`, `/my-bookings/:email`;
+  usually with `cache: "no-store"`. Shapes are hand-written in
+  `src/lib/types/StudioType.ts` (`IStudio`) and `src/lib/types/BookingType.ts` (`IBooking`), not generated.
+  Small helpers: `src/lib/data.ts` (`getFeaturedStudios`, React `cache()`-d), `src/lib/studio.ts`
+  (`rating` derived from id), `src/lib/booking.ts` (`sortBookingsNewestFirst`).
+- Endpoints in use: `GET /studios`, `/featured-studios`, `/studio/:id`, `/my-listings/:email`, `/my-bookings/:email`;
   `POST /add-studio`, `/booking`; `PATCH /studio/:id`, `/my-bookings/:id`,
   `/my-bookings/:id/confirm`; `DELETE /studio/:id`. Backend forces booking `status: "Pending"`
   on POST; invoices show for Confirmed/Completed.
@@ -52,8 +53,10 @@ components using the repo's Embla-based `components/ui/carousel.tsx`.
   the path. Public routes and `/api/auth` stay open. Never use `middleware.ts` (deprecated in Next
   16). Don't add a second `/api/auth` route.
 - Forgot-password is a custom `"use server"` action in `src/components/authentication/route.ts`
-  (despite the name, not an API route): looks up the user via Better Auth's internal adapter,
-  hashes and writes the new password, and deletes existing sessions. No email is sent.
+  (despite the name, not an API route): two-step flow (email check, then set password). It uses
+  Better Auth's internal adapter; the new password must satisfy Better Auth's min/max length **and**
+  contain an uppercase + lowercase letter (stricter than signup). It hashes/writes the password and
+  deletes existing sessions. No email is sent.
 - Invoices are generated client-side with jsPDF (`src/lib/invoice.ts`); they fall back to
   `GET /studio/:id` when a booking lacks host fields.
 - `StudioForm` downscales uploaded photos to a base64 data URL ≤90 KB (Express body limit) and
@@ -68,9 +71,9 @@ components using the repo's Embla-based `components/ui/carousel.tsx`.
 
 - React Compiler is enabled (`reactCompiler: true`): plain components, no manual
   `useMemo` / `useCallback` for performance.
-- Loading states: use `src/components/LoadingStates.tsx` (`LoadingLabel`, `ContentSkeleton`,
-  `PageLoading`, `FormLoading`) for every route `loading.tsx` and Suspense fallback — branded orange
-  spinner plus skeleton blocks, not plain text.
+- Loading states: use `src/components/LoadingStates.tsx` (`LoadingLabel`, `HeroSkeleton`,
+  `ContentSkeleton`, `PageLoading`, `FormLoading`) for every route `loading.tsx` and Suspense fallback
+  — branded orange spinner plus skeleton blocks, not plain text.
 - shadcn style is `base-nova` on **Base UI** (`@base-ui/react`), not Radix; use part / `render`
   props, never `@radix-ui/*` (`components.json`).
 - Class merging: `cn` from the `cn` package, re-exported by `src/lib/utils.ts`; `clsx` and

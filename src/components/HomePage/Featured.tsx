@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { getFeaturedStudios } from "@/lib/data";
 import { FeaturedStudios } from "./featured-studios";
 
+// Keep this section to at most 6 cards (matches the loading skeleton). The
+// shared getFeaturedStudios() also feeds the hero carousel, so cap here only.
+const CARD_COUNT = 6;
+
 async function FeaturedList() {
   const studios = await getFeaturedStudios();
 
@@ -26,14 +30,14 @@ async function FeaturedList() {
     );
   }
 
-  return <FeaturedStudios studios={studios} />;
+  return <FeaturedStudios studios={studios.slice(0, CARD_COUNT)} />;
 }
 
 function FeaturedSkeleton() {
   return (
     <div className="space-y-6">
       <LoadingLabel>Loading featured studios...</LoadingLabel>
-      <ContentSkeleton count={6} />
+      <ContentSkeleton count={CARD_COUNT} />
     </div>
   );
 }
