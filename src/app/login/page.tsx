@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Check, Eye, EyeOff } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth-client"
+import { REDIRECT_PARAM, requestedPath } from "@/lib/redirect"
 
 type LoginForm = {
   email: string
@@ -47,6 +48,7 @@ const promoPoints = [
 ]
 
 export default function LoginPage() {
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
 
   const handleEmailLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -63,7 +65,7 @@ export default function LoginPage() {
         title: "Welcome back!",
         description: "You're signed in.",
       })
-      redirect("/")
+      router.replace(requestedPath())
     }
 
     if (error) {
@@ -78,7 +80,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     const { error } = await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/",
+      callbackURL: requestedPath(),
     })
 
     if (error) {
@@ -176,7 +178,18 @@ export default function LoginPage() {
                     </Button>
                     <FieldDescription className="text-center">
                       New to StudioSpace?{" "}
-                      <Link href="/register" className="font-semibold text-brand hover:underline">
+                      <Link
+                        href="/register"
+                        onClick={(event) => {
+                          const target = requestedPath()
+                          if (target === "/") return
+                          event.preventDefault()
+                          router.push(
+                            `/register?${REDIRECT_PARAM}=${encodeURIComponent(target)}`
+                          )
+                        }}
+                        className="font-semibold text-brand hover:underline"
+                      >
                         Create an account
                       </Link>
                     </FieldDescription>

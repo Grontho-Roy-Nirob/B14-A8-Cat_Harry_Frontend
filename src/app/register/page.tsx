@@ -3,7 +3,7 @@
 import { useState, type ChangeEvent, type FormEvent } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Check, Eye, EyeOff, Upload, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth-client"
+import { REDIRECT_PARAM, requestedPath } from "@/lib/redirect"
 import { cn } from "@/lib/utils"
 
 type SignUpForm = {
@@ -74,6 +75,7 @@ function GoogleIcon() {
 }
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [photo, setPhoto] = useState<{ name: string; dataUrl: string } | null>(null)
@@ -118,7 +120,12 @@ export default function RegisterPage() {
         title: "Account created!",
         description: "Welcome to StudioSpace. Let's get you signed in.",
       })
-      redirect("/login")
+      const target = requestedPath()
+      router.replace(
+        target === "/"
+          ? "/login"
+          : `/login?${REDIRECT_PARAM}=${encodeURIComponent(target)}`
+      )
     }
 
     if (error) {
@@ -131,7 +138,10 @@ export default function RegisterPage() {
   }
 
   const handleGoogleSignUp = async () => {
-    const { error } = await authClient.signIn.social({ provider: "google" })
+    const { error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: requestedPath(),
+    })
 
     if (error) {
       toast.add({
@@ -328,7 +338,18 @@ export default function RegisterPage() {
                     </Button>
                     <FieldDescription className="text-center">
                       Already have an account?{" "}
-                      <Link href="/login" className="font-semibold text-brand hover:underline">
+                      <Link
+                        href="/login"
+                        onClick={(event) => {
+                          const target = requestedPath()
+                          if (target === "/") return
+                          event.preventDefault()
+                          router.push(
+                            `/login?${REDIRECT_PARAM}=${encodeURIComponent(target)}`
+                          )
+                        }}
+                        className="font-semibold text-brand hover:underline"
+                      >
                         Login
                       </Link>
                     </FieldDescription>
