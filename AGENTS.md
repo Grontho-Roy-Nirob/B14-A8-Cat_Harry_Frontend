@@ -12,7 +12,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Single Next.js 16 App Router package (no workspaces). `src/app` routes; `src/components/ui`
 are generated shadcn primitives; `src/components/HomePage/{Navbar,Footer}` and a Toaster are
-mounted on every route by `src/app/layout.tsx`. `/` is still an empty `<div>`.
+mounted on every route by `src/app/layout.tsx`. `/` composes the `HomePage/{Banner,Featured,
+BrowseCategories,HowItWorks,HostGuarantee}` sections; `Banner` and `featured-studios` are client
+components using the repo's Embla-based `components/ui/carousel.tsx`.
 
 ## Commands
 
@@ -78,7 +80,7 @@ mounted on every route by `src/app/layout.tsx`. `/` is still an empty `<div>`.
 
 ## Route state
 
-- Implemented: `/login`, `/register`, `/forgot-password`, `/studios`, `/studios/[id]`,
+- Implemented: `/`, `/login`, `/register`, `/forgot-password`, `/studios`, `/studios/[id]`,
   `/studios/edit/[id]`, `/add-studio`, `/my-listings`, `/my-bookings`, `/host-bookings`,
   `/not-found`.
 - Still `PagePlaceholder` stubs: `/my-studios`, `/edit-studio/[id]` (legacy paths — the real

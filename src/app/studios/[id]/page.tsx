@@ -17,13 +17,8 @@ import { Button } from "@/components/ui/button";
 import BookingCard from "@/components/booking/BookingCard";
 import DeleteStudioDialog from "@/components/studio/DeleteStudioDialog";
 import { auth } from "@/lib/auth";
+import { rating } from "@/lib/studio";
 import type { IStudio } from "@/lib/types/StudioType";
-
-// Deterministic pseudo-rating from the id (the API has no rating/review field)
-function rating(id: string) {
-  const sum = id.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  return (4 + (sum % 10) / 10).toFixed(1);
-}
 
 const StudioDetailsPage = async ({
   params,

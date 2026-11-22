@@ -3,13 +3,19 @@ import { Suspense } from "react";
 import { StudiosGrid } from "@/components/studio/studios-grid";
 import type { IStudio } from "@/lib/types/StudioType";
 
-async function Studios() {
+async function Studios({ category }: { category?: string }) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/studios`, {
     cache: "no-store",
   });
   const data: IStudio[] = await res.json();
 
-  return <StudiosGrid studios={data} />;
+  return (
+    <StudiosGrid
+      key={category ?? "all"}
+      studios={data}
+      initialCategory={category ?? "All"}
+    />
+  );
 }
 
 function StudiosSkeleton() {
@@ -40,11 +46,17 @@ function StudiosSkeleton() {
   );
 }
 
-export default function AllStudiosPage() {
+export default async function AllStudiosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category } = await searchParams;
+
   return (
     <main>
       <Suspense fallback={<StudiosSkeleton />}>
-        <Studios />
+        <Studios category={category} />
       </Suspense>
     </main>
   );

@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { rating } from "@/lib/studio";
 import type { IStudio } from "@/lib/types/StudioType";
 
 const categories = [
@@ -31,15 +32,17 @@ const categories = [
   "Workshop",
 ];
 
-// Deterministic pseudo-rating from the id (the API has no rating/review field)
-function rating(id: string) {
-  const sum = id.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  return (4 + (sum % 10) / 10).toFixed(1);
-}
-
-export function StudiosGrid({ studios }: { studios: IStudio[] }) {
+export function StudiosGrid({
+  studios,
+  initialCategory = "All",
+}: {
+  studios: IStudio[];
+  initialCategory?: string;
+}) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All");
+  const [category, setCategory] = useState(
+    categories.includes(initialCategory) ? initialCategory : "All"
+  );
   const [price, setPrice] = useState("any");
   const [sort, setSort] = useState("rating");
   const [page, setPage] = useState(1);
