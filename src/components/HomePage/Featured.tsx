@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { ContentSkeleton, LoadingLabel } from "@/components/LoadingStates";
 import { Button } from "@/components/ui/button";
 import type { IStudio } from "@/lib/types/StudioType";
 import { FeaturedStudios } from "./featured-studios";
@@ -43,21 +44,9 @@ async function FeaturedList() {
 
 function FeaturedSkeleton() {
   return (
-    <div role="status" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <span className="sr-only">Loading featured studios</span>
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          key={index}
-          className="overflow-hidden rounded-xl border border-border bg-white"
-        >
-          <div className="h-48 animate-pulse bg-muted" />
-          <div className="space-y-3 p-4">
-            <div className="h-5 w-2/3 animate-pulse rounded bg-muted" />
-            <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
-            <div className="h-8 animate-pulse rounded bg-muted" />
-          </div>
-        </div>
-      ))}
+    <div className="space-y-6">
+      <LoadingLabel>Loading featured studios...</LoadingLabel>
+      <ContentSkeleton count={6} />
     </div>
   );
 }

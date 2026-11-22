@@ -68,6 +68,9 @@ components using the repo's Embla-based `components/ui/carousel.tsx`.
 
 - React Compiler is enabled (`reactCompiler: true`): plain components, no manual
   `useMemo` / `useCallback` for performance.
+- Loading states: use `src/components/LoadingStates.tsx` (`LoadingLabel`, `ContentSkeleton`,
+  `PageLoading`, `FormLoading`) for every route `loading.tsx` and Suspense fallback — branded orange
+  spinner plus skeleton blocks, not plain text.
 - shadcn style is `base-nova` on **Base UI** (`@base-ui/react`), not Radix; use part / `render`
   props, never `@radix-ui/*` (`components.json`).
 - Class merging: `cn` from the `cn` package, re-exported by `src/lib/utils.ts`; `clsx` and
