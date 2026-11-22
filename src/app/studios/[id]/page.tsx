@@ -7,15 +7,12 @@ import {
   Check,
   ChevronRight,
   MapPin,
-  Pencil,
   ShieldCheck,
   Star,
   Users,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import BookingCard from "@/components/booking/BookingCard";
-import DeleteStudioDialog from "@/components/studio/DeleteStudioDialog";
 import { auth } from "@/lib/auth";
 import { rating } from "@/lib/studio";
 import type { IStudio } from "@/lib/types/StudioType";
@@ -165,18 +162,6 @@ const StudioDetailsPage = async ({
           {/* Sidebar */}
           <div className="space-y-4 lg:sticky lg:top-28 lg:self-start">
             <BookingCard studio={studio} />
-            <div className="flex gap-3">
-              <Button
-                nativeButton={false}
-                render={<Link href={`/studios/edit/${id}`} />}
-                variant="outline"
-                className="flex-1 rounded-lg text-xs"
-              >
-                <Pencil />
-                Edit
-              </Button>
-              <DeleteStudioDialog id={id} />
-            </div>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, AudioLines, Camera, Clapperboard, Mic, Palette } from "lucide-react";
 
-const categories = [
+export const categories = [
   {
     label: "Photo Studios",
     value: "Photo Studio",
@@ -10,7 +10,7 @@ const categories = [
   },
   {
     label: "Sound Stages",
-    value: "Film Stage",
+    value: "Sound Stage",
     description: "Big, quiet stages ready for full production days.",
     icon: Clapperboard,
   },

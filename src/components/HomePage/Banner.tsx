@@ -13,8 +13,20 @@ import {
   useCarousel,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
+import type { IStudio } from "@/lib/types/StudioType";
 
-const slides = [
+type Slide = {
+  eyebrow: string;
+  titleLines: string[];
+  description: string;
+  image: string;
+  category: string;
+  status: string;
+  studio: string;
+  meta: string;
+};
+
+const staticSlides: Slide[] = [
   {
     eyebrow: "CREATOR-FIRST STUDIOS",
     titleLines: ["Book the room where", "your next idea gets", "made."],
@@ -55,7 +67,21 @@ const slides = [
 
 const trustBadges = ["Verified hosts", "Hourly pricing", "Flexible bookings"];
 
-function HeroControls() {
+// Marketing copy stays static; the studio-specific parts come from the API.
+const slidesFromStudios = (studios: IStudio[]): Slide[] =>
+  studios.slice(0, 3).map((studio, index) => {
+    const copy = staticSlides[index] ?? staticSlides[0];
+    return {
+      ...copy,
+      image: studio.imageUrl || copy.image,
+      category: studio.category,
+      status: "Open for booking",
+      studio: studio.title,
+      meta: `${studio.location} · $${studio.hourlyRate}/hr`,
+    };
+  });
+
+function HeroControls({ count }: { count: number }) {
   const { api, scrollPrev, scrollNext, canScrollPrev, canScrollNext } =
     useCarousel();
   const [selected, setSelected] = useState(0);
@@ -79,7 +105,7 @@ function HeroControls() {
         className="min-w-16 text-sm font-semibold tabular-nums text-foreground"
       >
         <span className="sr-only">Slide </span>
-        {String(selected + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+        {String(selected + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
       </p>
       <div aria-hidden="true" className="h-px flex-1 bg-border" />
       <div className="flex gap-3">
@@ -110,7 +136,10 @@ function HeroControls() {
   );
 }
 
-export default function Banner() {
+export default function Banner({ studios }: { studios?: IStudio[] }) {
+  const slides =
+    studios && studios.length > 0 ? slidesFromStudios(studios) : staticSlides;
+
   return (
     <section className="w-full bg-white px-6 pt-12 pb-16 lg:pt-20 lg:pb-24">
       <Carousel
@@ -210,7 +239,7 @@ export default function Banner() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <HeroControls />
+        <HeroControls count={slides.length} />
       </Carousel>
     </section>
   );

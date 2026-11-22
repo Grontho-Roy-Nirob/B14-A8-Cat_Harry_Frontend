@@ -1,21 +1,14 @@
 import Link from "next/link";
-import { Globe } from "lucide-react";
+import { Clock, Globe, Mail, Phone } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { categories as studioCategories } from "./BrowseCategories";
 
 const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Explore Studios", href: "/studios" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "About Us", href: "/#about" },
-];
-
-const popularCategories = [
-  "Photo Studios",
-  "Podcast Rooms",
-  "Music Suites",
-  "Art Workshops",
 ];
 
 const socials = [
@@ -125,13 +118,13 @@ export default function Footer() {
               Popular categories
             </h2>
             <ul className="mt-4 space-y-2.5">
-              {popularCategories.map((category) => (
-                <li key={category}>
+              {studioCategories.map((category) => (
+                <li key={category.value}>
                   <Link
-                    href="/studios"
+                    href={`/studios?category=${encodeURIComponent(category.value)}`}
                     className="text-sm text-slate-500 transition-colors hover:text-slate-900"
                   >
-                    {category}
+                    {category.label}
                   </Link>
                 </li>
               ))}
@@ -139,26 +132,24 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-2 lg:col-span-1">
-            <h2 className="text-sm font-bold text-slate-900">
-              Studio news in your inbox
-            </h2>
+            <h2 className="text-sm font-bold text-slate-900">Here to help</h2>
             <p className="mt-3 text-sm text-slate-500">
-              New rooms and host tips, once a month.
+              Questions about a booking or listing? Our team is around every day.
             </p>
-            <div className="mt-4 flex w-full max-w-sm flex-col gap-2.5 sm:flex-row">
-              <input
-                type="email"
-                aria-label="Email address"
-                placeholder="you@gmail.com"
-                className="h-10 min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus-visible:border-[#f97316] focus-visible:ring-3 focus-visible:ring-[#f97316]/20"
-              />
-              <Button
-                type="button"
-                className="h-10 shrink-0 rounded-lg bg-[#c2410c]! px-5 text-sm font-semibold text-white! hover:bg-[#a33008]!"
-              >
-                Subscribe
-              </Button>
-            </div>
+            <ul className="mt-4 space-y-2.5 text-sm text-slate-500">
+              <li className="flex items-center gap-2.5">
+                <Mail className="size-4 shrink-0 text-[#ea580c]" />
+                hello@studiospace.com
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Phone className="size-4 shrink-0 text-[#ea580c]" />
+                +880 1716 532 871
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Clock className="size-4 shrink-0 text-[#ea580c]" />
+                Support: 9:00 AM – 9:00 PM
+              </li>
+            </ul>
           </div>
         </div>
 

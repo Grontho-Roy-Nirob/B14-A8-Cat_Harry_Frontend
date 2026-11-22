@@ -4,24 +4,11 @@ import { ArrowRight } from "lucide-react";
 
 import { ContentSkeleton, LoadingLabel } from "@/components/LoadingStates";
 import { Button } from "@/components/ui/button";
-import type { IStudio } from "@/lib/types/StudioType";
+import { getFeaturedStudios } from "@/lib/data";
 import { FeaturedStudios } from "./featured-studios";
 
 async function FeaturedList() {
-  let studios: IStudio[] | null = null;
-
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/featured-studios`,
-      { cache: "no-store" }
-    );
-    if (response.ok) {
-      const data: unknown = await response.json();
-      if (Array.isArray(data)) studios = data as IStudio[];
-    }
-  } catch {
-    // Rendered as the unavailable state below.
-  }
+  const studios = await getFeaturedStudios();
 
   if (studios === null) {
     return (

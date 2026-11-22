@@ -22,7 +22,7 @@ import type { IStudio } from "@/lib/types/StudioType";
 
 const categories = [
   "Photo Studio",
-  "Film Stage",
+  "Sound Stage",
   "Podcast Lounge",
   "Music Suite",
   "Workshop",

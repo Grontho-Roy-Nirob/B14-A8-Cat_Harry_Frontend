@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, MapPin, Star } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { rating } from "@/lib/studio";
@@ -60,7 +60,6 @@ export function FeaturedStudios({ studios }: { studios: IStudio[] }) {
                 className="h-9 rounded-lg bg-[#f97316] px-4 text-xs font-semibold text-white hover:bg-[#ea580c]"
               >
                 View Details
-                <ArrowUpRight className="size-3.5" />
               </Button>
             </div>
           </div>

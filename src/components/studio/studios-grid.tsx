@@ -26,11 +26,35 @@ import type { IStudio } from "@/lib/types/StudioType";
 const categories = [
   "All",
   "Photo Studio",
-  "Film Stage",
+  "Sound Stage",
   "Podcast Lounge",
   "Music Suite",
   "Workshop",
 ];
+
+// Base UI renders the raw value in <SelectValue> unless the root gets `items`,
+// which maps values to the labels displayed in the trigger.
+const priceOptions = [
+  { value: "any", label: "Any price" },
+  { value: "under50", label: "Under $50" },
+  { value: "50to100", label: "$50 - $100" },
+  { value: "over100", label: "Over $100" },
+];
+
+const sortOptions = [
+  { value: "rating", label: "Top Rated" },
+  { value: "price-low", label: "Price: low to high" },
+  { value: "price-high", label: "Price: high to low" },
+];
+
+// Older listings were saved as "Film Stage"; treat them as "Sound Stage".
+const matchesCategory = (studioCategory: string, selected: string) => {
+  if (selected === "All") return true;
+  if (selected === "Sound Stage") {
+    return studioCategory === "Sound Stage" || studioCategory === "Film Stage";
+  }
+  return studioCategory === selected;
+};
 
 export function StudiosGrid({
   studios,
@@ -40,8 +64,9 @@ export function StudiosGrid({
   initialCategory?: string;
 }) {
   const [query, setQuery] = useState("");
+  const initial = initialCategory === "Film Stage" ? "Sound Stage" : initialCategory;
   const [category, setCategory] = useState(
-    categories.includes(initialCategory) ? initialCategory : "All"
+    categories.includes(initial) ? initial : "All"
   );
   const [price, setPrice] = useState("any");
   const [sort, setSort] = useState("rating");
@@ -53,7 +78,7 @@ export function StudiosGrid({
       !term ||
       studio.title?.toLowerCase().includes(term) ||
       studio.location?.toLowerCase().includes(term);
-    const matchCategory = category === "All" || studio.category === category;
+    const matchCategory = matchesCategory(studio.category, category);
     const rate = Number(studio.hourlyRate ?? 0);
     const matchPrice =
       price === "any" ||
@@ -126,6 +151,7 @@ export function StudiosGrid({
 
             <div className="w-full sm:w-36">
               <Select
+                items={priceOptions}
                 value={price}
                 onValueChange={(value) => {
                   setPrice(value ?? "any");
@@ -136,26 +162,30 @@ export function StudiosGrid({
                   <SelectValue placeholder="Any price" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="any">Any price</SelectItem>
-                  <SelectItem value="under50">Under $50</SelectItem>
-                  <SelectItem value="50to100">$50 - $100</SelectItem>
-                  <SelectItem value="over100">Over $100</SelectItem>
+                  {priceOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="w-full sm:w-36">
               <Select
+                items={sortOptions}
                 value={sort}
                 onValueChange={(value) => setSort(value ?? "rating")}
               >
                 <SelectTrigger className="h-10 w-full rounded-lg border-slate-200 bg-white text-sm">
-                  <SelectValue placeholder="Top rated" />
+                  <SelectValue placeholder="Top Rated" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="rating">Top rated</SelectItem>
-                  <SelectItem value="price-low">Price: low to high</SelectItem>
-                  <SelectItem value="price-high">Price: high to low</SelectItem>
+                  {sortOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
