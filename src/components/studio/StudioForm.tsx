@@ -18,7 +18,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
-import type { IStudio } from "@/lib/types/studios";
+import type { IStudio } from "@/lib/types/StudioType";
 
 const categories = [
   "Photo Studio",
@@ -101,7 +101,7 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
   const [photoPreview, setPhotoPreview] = useState(studio?.imageUrl ?? "");
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -147,7 +147,10 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
   };
 
   const getPayload = (formData: FormData) => {
-    const raw = Object.fromEntries(formData.entries()) as Record<string, string>;
+    const raw = Object.fromEntries(formData.entries()) as Record<
+      string,
+      string
+    >;
     const selectedAmenities = formData.getAll("amenities").map(String);
 
     return {
@@ -162,9 +165,10 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
   };
 
   const handleResponse = async (res: Response) => {
-    const data = (await res.json().catch(() => null)) as
-      | { message?: string; error?: string }
-      | null;
+    const data = (await res.json().catch(() => null)) as {
+      message?: string;
+      error?: string;
+    } | null;
 
     if (!res.ok) {
       toast.add({
@@ -217,7 +221,9 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
   };
 
   // PATCH — update an existing studio
-  const handleUpdateStudio = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleUpdateStudio = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
@@ -229,7 +235,7 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(getPayload(formData)),
-        }
+        },
       );
       await handleResponse(res);
     } catch {
@@ -252,7 +258,9 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
 
         {/* Space details */}
         <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-base font-semibold text-foreground">Space details</h2>
+          <h2 className="text-base font-semibold text-foreground">
+            Space details
+          </h2>
           <div className="mt-5 grid gap-5">
             <div className="grid gap-2">
               <Label htmlFor="title">Studio title</Label>
@@ -434,7 +442,9 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
                       type="checkbox"
                       name="amenities"
                       value={amenity}
-                      defaultChecked={studio?.amenities?.includes(amenity) ?? false}
+                      defaultChecked={
+                        studio?.amenities?.includes(amenity) ?? false
+                      }
                       className="peer sr-only"
                     />
                     <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground peer-checked:border-orange-400 peer-checked:bg-orange-50 peer-checked:text-orange-700">
@@ -485,11 +495,17 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
 
         {/* Host information */}
         <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-base font-semibold text-foreground">Host information</h2>
+          <h2 className="text-base font-semibold text-foreground">
+            Host information
+          </h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label>Host name</Label>
-              <Input readOnly className="h-11 rounded-lg bg-muted" value={ownerName} />
+              <Input
+                readOnly
+                className="h-11 rounded-lg bg-muted"
+                value={ownerName}
+              />
             </div>
             <div className="grid gap-2">
               <Label>Host email</Label>
@@ -505,7 +521,11 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
 
         {/* Actions */}
         <div className="flex justify-end gap-3 pb-2">
-          <Button type="button" variant="outline" className="h-11 rounded-lg px-6">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 rounded-lg px-6"
+          >
             Cancel
           </Button>
           <button
@@ -552,7 +572,10 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
             </p>
             <p className="mt-3 text-xl font-semibold text-foreground">
               ${preview.hourlyRate || "0"}
-              <span className="text-xs font-normal text-muted-foreground"> /hr</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                {" "}
+                /hr
+              </span>
             </p>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
               This is how your card will look on the Explore page.

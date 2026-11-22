@@ -4,7 +4,7 @@ import { ChevronRight } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import MyBookingsList from "@/components/booking/MyBookingsList";
-import type { IBooking } from "@/lib/types/booking";
+import type { IBooking } from "@/lib/types/BookingType";
 
 const MyBookingsPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -12,7 +12,7 @@ const MyBookingsPage = async () => {
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${email}`,
-    { cache: "no-store" }
+    { cache: "no-store" },
   );
   const bookings: IBooking[] = await res.json();
 
@@ -37,8 +37,8 @@ const MyBookingsPage = async () => {
             Your studio bookings
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-            Track every request, cancel pending slots and download invoices for confirmed
-            shoots.
+            Track every request, cancel pending slots and download invoices for
+            confirmed shoots.
           </p>
         </div>
       </section>

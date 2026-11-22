@@ -4,13 +4,15 @@ import { Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import DeleteListingDialog from "@/components/studio/DeleteListingDialog";
-import type { IStudio } from "@/lib/types/studios";
+import type { IStudio } from "@/lib/types/StudioType";
 
 const MyStudioListingList = ({ studios }: { studios: IStudio[] }) => {
   if (studios.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center">
-        <p className="text-base font-semibold text-slate-900">No studio listings yet</p>
+        <p className="text-base font-semibold text-slate-900">
+          No studio listings yet
+        </p>
         <p className="mt-1 text-sm text-muted-foreground">
           Add your first studio to start receiving booking requests.
         </p>
@@ -70,7 +72,10 @@ const MyStudioListingList = ({ studios }: { studios: IStudio[] }) => {
 
               <div className="text-sm font-semibold text-slate-900">
                 ${studio.hourlyRate}
-                <span className="text-xs font-normal text-muted-foreground"> / hr</span>
+                <span className="text-xs font-normal text-muted-foreground">
+                  {" "}
+                  / hr
+                </span>
               </div>
 
               <div className="flex items-center gap-1.5 text-xs font-medium text-green-700">

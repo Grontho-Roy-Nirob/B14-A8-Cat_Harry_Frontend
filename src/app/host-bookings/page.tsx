@@ -4,7 +4,7 @@ import { ChevronRight } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import HostBookingsList from "@/components/booking/HostBookingsList";
-import type { IBooking } from "@/lib/types/booking";
+import type { IBooking } from "@/lib/types/BookingType";
 
 const HostBookingsPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -14,7 +14,7 @@ const HostBookingsPage = async () => {
   // This reuses the existing /my-bookings/:email endpoint — no new API needed.
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${email}`,
-    { cache: "no-store" }
+    { cache: "no-store" },
   );
   const bookings: IBooking[] = await res.json();
 
@@ -39,11 +39,13 @@ const HostBookingsPage = async () => {
             Host booking management
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-            Review booking requests for your studios. Confirm or reject pending requests
-            from one place.
+            Review booking requests for your studios. Confirm or reject pending
+            requests from one place.
           </p>
           {email && (
-            <p className="mt-2 text-xs text-muted-foreground">Host account: {email}</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Host account: {email}
+            </p>
           )}
         </div>
       </section>

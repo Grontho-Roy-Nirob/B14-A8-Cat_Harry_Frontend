@@ -23,4 +23,6 @@ export interface IBooking {
   bookingRef?: string;
   guestEmail?: string;
   guestName?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

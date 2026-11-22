@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf";
 
-import type { IBooking } from "@/lib/types/booking";
-import type { IStudio } from "@/lib/types/studios";
+import type { IBooking } from "@/lib/types/BookingType";
+import type { IStudio } from "@/lib/types/StudioType";
 
 const text = (value?: string | number) =>
   value === undefined || value === null || value === "" ? "—" : String(value);
@@ -16,7 +16,7 @@ export async function downloadInvoice(booking: IBooking) {
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/studio/${booking.studioId}`,
-        { cache: "no-store" }
+        { cache: "no-store" },
       );
       if (res.ok) {
         const studio: IStudio = await res.json();
@@ -76,7 +76,7 @@ export async function downloadInvoice(booking: IBooking) {
   doc.text(
     `Time: ${text(booking.startTime)} - ${text(booking.endTime)}`,
     16,
-    155
+    155,
   );
 
   doc.setDrawColor(226, 232, 240);

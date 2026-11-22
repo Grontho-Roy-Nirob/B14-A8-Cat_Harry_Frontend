@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 
 import { StudiosGrid } from "@/components/studio/studios-grid";
-import type { IStudio } from "@/lib/types/studios";
+import type { IStudio } from "@/lib/types/StudioType";
 
 async function Studios() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/studios`, {
-    cache: 'no-store'
+    cache: "no-store",
   });
   const data: IStudio[] = await res.json();
 
@@ -33,7 +33,8 @@ function StudiosSkeleton() {
               className="h-72 animate-pulse rounded-sm border border-border bg-muted/50"
             />
           ))}
-        </div>. 
+        </div>
+        .
       </div>
     </section>
   );

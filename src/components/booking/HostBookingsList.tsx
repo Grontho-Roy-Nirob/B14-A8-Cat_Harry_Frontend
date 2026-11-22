@@ -15,8 +15,9 @@ import {
 import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/booking/StatusBadge";
 import { toast } from "@/components/ui/toast";
+import { sortBookingsNewestFirst } from "@/lib/booking";
 import { downloadInvoice } from "@/lib/invoice";
-import type { IBooking } from "@/lib/types/booking";
+import type { IBooking } from "@/lib/types/BookingType";
 
 const imageUrl = (booking: IBooking) =>
   booking.studioImage || booking.imageUrl || booking.image || "/favicon.ico";
@@ -27,11 +28,16 @@ const title = (booking: IBooking) =>
 const HostBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
   const router = useRouter();
 
-  const hostRequests = bookings.filter(
-    (booking) => booking.isHostNotification || booking.bookingRef
+  const hostRequests = sortBookingsNewestFirst(
+    bookings.filter(
+      (booking) => booking.isHostNotification || booking.bookingRef,
+    ),
   );
 
-  const updateStatus = async (booking: IBooking, action: "confirm" | "reject") => {
+  const updateStatus = async (
+    booking: IBooking,
+    action: "confirm" | "reject",
+  ) => {
     const isConfirm = action === "confirm";
     const ids = [booking._id, booking.bookingRef].filter(Boolean) as string[];
 
@@ -44,16 +50,20 @@ const HostBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: isConfirm ? undefined : JSON.stringify({ status: "Cancelled" }),
-          }
-        )
-      )
+            body: isConfirm
+              ? undefined
+              : JSON.stringify({ status: "Cancelled" }),
+          },
+        ),
+      ),
     );
 
     if (results.some((res) => !res.ok)) {
       toast.add({
         type: "error",
-        title: isConfirm ? "Could not confirm booking" : "Could not reject booking",
+        title: isConfirm
+          ? "Could not confirm booking"
+          : "Could not reject booking",
         description: "Please try again.",
       });
       return;
@@ -131,8 +141,12 @@ const HostBookingsList = ({ bookings }: { bookings: IBooking[] }) => {
                   </div>
 
                   <p className="mt-3 text-sm text-muted-foreground">
-                    Requested by {booking.guestName || booking.name || "—"} &middot;{" "}
-                    {booking.customerEmail || booking.guestEmail || booking.email || "—"}
+                    Requested by {booking.guestName || booking.name || "—"}{" "}
+                    &middot;{" "}
+                    {booking.customerEmail ||
+                      booking.guestEmail ||
+                      booking.email ||
+                      "—"}
                   </p>
                 </div>
 

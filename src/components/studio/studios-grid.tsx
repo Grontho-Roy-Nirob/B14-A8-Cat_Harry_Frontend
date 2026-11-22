@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { IStudio } from "@/lib/types/studios";
+import type { IStudio } from "@/lib/types/StudioType";
 
 const categories = [
   "All",
@@ -61,15 +61,20 @@ export function StudiosGrid({ studios }: { studios: IStudio[] }) {
   });
 
   const sorted = [...filtered].sort((a, b) => {
-    if (sort === "price-low") return Number(a.hourlyRate) - Number(b.hourlyRate);
-    if (sort === "price-high") return Number(b.hourlyRate) - Number(a.hourlyRate);
+    if (sort === "price-low")
+      return Number(a.hourlyRate) - Number(b.hourlyRate);
+    if (sort === "price-high")
+      return Number(b.hourlyRate) - Number(a.hourlyRate);
     return Number(rating(b._id)) - Number(rating(a._id));
   });
 
   const pageSize = 9;
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const currentPage = Math.min(page, totalPages);
-  const visible = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const visible = sorted.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   return (
     <>
@@ -94,8 +99,8 @@ export function StudiosGrid({ studios }: { studios: IStudio[] }) {
           </h1>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-2">
             <p className="text-sm text-muted-foreground">
-              Browse every listed space, narrow it down by category, and open a listing to
-              see live availability.
+              Browse every listed space, narrow it down by category, and open a
+              listing to see live availability.
             </p>
             <p className="text-xs text-muted-foreground">
               Showing {visible.length} of {studios.length} studios
@@ -217,7 +222,10 @@ export function StudiosGrid({ studios }: { studios: IStudio[] }) {
                   <div className="mt-4 flex items-center justify-between gap-3">
                     <p className="text-lg font-semibold text-foreground">
                       ${studio.hourlyRate}
-                      <span className="text-xs font-normal text-muted-foreground"> /hr</span>
+                      <span className="text-xs font-normal text-muted-foreground">
+                        {" "}
+                        /hr
+                      </span>
                     </p>
                     <Button
                       nativeButton={false}

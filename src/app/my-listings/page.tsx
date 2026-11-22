@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import MyStudioListingList from "@/components/studio/MyStudioListingList";
-import type { IStudio } from "@/lib/types/studios";
+import type { IStudio } from "@/lib/types/StudioType";
 
 const MyListingsPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -13,7 +13,7 @@ const MyListingsPage = async () => {
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/my-listings/${email}`,
-    { cache: "no-store" }
+    { cache: "no-store" },
   );
   const studios: IStudio[] = await res.json();
 

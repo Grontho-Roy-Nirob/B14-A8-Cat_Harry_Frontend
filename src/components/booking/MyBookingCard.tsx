@@ -3,13 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CalendarDays, Clock, Download, MapPin, XCircle } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  Clock,
+  Download,
+  MapPin,
+  XCircle,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/booking/StatusBadge";
 import { toast } from "@/components/ui/toast";
 import { downloadInvoice } from "@/lib/invoice";
-import type { IBooking } from "@/lib/types/booking";
+import type { IBooking } from "@/lib/types/BookingType";
 
 const imageUrl = (booking: IBooking) =>
   booking.studioImage || booking.imageUrl || booking.image || "/favicon.ico";
@@ -28,7 +35,7 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "Cancelled" }),
-      }
+      },
     );
 
     await res.json().catch(() => null);
@@ -66,7 +73,9 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
         <div className="flex flex-1 flex-col justify-between p-5 md:p-6">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-xl font-semibold text-slate-900">{title(booking)}</h2>
+              <h2 className="text-xl font-semibold text-slate-900">
+                {title(booking)}
+              </h2>
               <StatusBadge status={status} />
             </div>
 

@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import BookingCard from "@/components/booking/BookingCard";
 import DeleteStudioDialog from "@/components/studio/DeleteStudioDialog";
 import { auth } from "@/lib/auth";
-import type { IStudio } from "@/lib/types/studios";
+import type { IStudio } from "@/lib/types/StudioType";
 
 // Deterministic pseudo-rating from the id (the API has no rating/review field)
 function rating(id: string) {
@@ -42,9 +42,21 @@ const StudioDetailsPage = async ({
   const studio: IStudio = await res.json();
 
   const specs = [
-    { label: "Hourly rate", value: `$${studio.hourlyRate}`, icon: CalendarDays },
-    { label: "Security deposit", value: `$${studio.securityDeposit}`, icon: ShieldCheck },
-    { label: "Max capacity", value: `${studio.maxCapacity} people`, icon: Users },
+    {
+      label: "Hourly rate",
+      value: `$${studio.hourlyRate}`,
+      icon: CalendarDays,
+    },
+    {
+      label: "Security deposit",
+      value: `$${studio.securityDeposit}`,
+      icon: ShieldCheck,
+    },
+    {
+      label: "Max capacity",
+      value: `${studio.maxCapacity} people`,
+      icon: Users,
+    },
   ];
 
   return (
@@ -110,17 +122,23 @@ const StudioDetailsPage = async ({
                     <Icon className="size-3.5" />
                     {label}
                   </p>
-                  <p className="mt-1.5 text-sm font-semibold text-foreground">{value}</p>
+                  <p className="mt-1.5 text-sm font-semibold text-foreground">
+                    {value}
+                  </p>
                 </div>
               ))}
             </div>
 
-            <h2 className="mt-8 text-xl font-semibold text-foreground">About this space</h2>
+            <h2 className="mt-8 text-xl font-semibold text-foreground">
+              About this space
+            </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               {studio.overview}
             </p>
 
-            <h2 className="mt-8 text-xl font-semibold text-foreground">Amenities</h2>
+            <h2 className="mt-8 text-xl font-semibold text-foreground">
+              Amenities
+            </h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-3">
               {studio.amenities.map((item) => (
                 <li
@@ -139,8 +157,12 @@ const StudioDetailsPage = async ({
               </span>
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Hosted by</p>
-                <p className="text-sm font-semibold text-foreground">{studio.ownerName}</p>
-                <p className="text-xs text-muted-foreground">{studio.ownerEmail}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {studio.ownerName}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {studio.ownerEmail}
+                </p>
               </div>
             </div>
           </div>

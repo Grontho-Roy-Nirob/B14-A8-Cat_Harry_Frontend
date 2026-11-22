@@ -11,34 +11,54 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # StudioSpace — frontend
 
 Single Next.js 16 App Router package (no workspaces). `src/app` routes; `src/components/ui`
-are generated shadcn primitives; `src/components/HomePage/{Navbar,Footer}` are mounted on every
-route by `src/app/layout.tsx`. `/` is still an empty `<div>`.
-
-## Backend and env
-
-- `.env` is gitignored but present locally with real secrets: `MONGODB_URI`, `MONGODB_DB`,
-  `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
-  `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_CLIENT_URL`.
-- Auth lives **in this frontend**, not the API: `src/lib/auth.ts` (Better Auth + MongoDB adapter,
-  email/password min length 6, Google OAuth) is mounted by `src/app/api/auth/[...all]/route.ts`
-  via `toNextJsHandler(auth)`; the browser uses `src/lib/auth-client.ts` (`BETTER_AUTH_URL`).
-  Don't add a second `/api/auth` route — sign-in/sign-up/social calls do have a handler.
-- Forgot-password is a custom `"use server"` action in `src/components/authentication/route.ts`
-  (despite the name, not an API route): looks up the user via Better Auth's internal adapter,
-  hashes and writes the new password, and deletes existing sessions. No email is sent.
-- The Express API is a separate repo at `../B14-A8-Cat_Harry_Backend` (port 8000).
-  `NEXT_PUBLIC_API_URL` is configured but no `src/` code uses it yet — don't assume API calls exist.
-- No test runner is configured; don't invent test commands.
+are generated shadcn primitives; `src/components/HomePage/{Navbar,Footer}` and a Toaster are
+mounted on every route by `src/app/layout.tsx`. `/` is still an empty `<div>`.
 
 ## Commands
 
 - `npm run dev` / `npm run build` / `npm start`
 - `npm run lint` → plain `eslint` (flat config); `next lint` no longer exists in Next 16.
-- Typecheck: `npx next typegen` then `npx tsc --noEmit` (passes cleanly once typegen has run).
-  Generated `PageProps` / `LayoutProps` don't exist until typegen or a dev/build run.
-- Pre-existing lint failures, not caused by your change: 2 `react-hooks/set-state-in-effect`
-  errors (`src/hooks/use-mobile.ts`, generated `src/components/ui/carousel.tsx`) and 1 unused-import
-  warning (`Image` in `src/app/page.tsx`). `npm run lint` exits 1 because of them; add no new errors.
+- Typecheck: `npx next typegen` then `npx tsc --noEmit` (clean after typegen; generated
+  `PageProps` / `LayoutProps` don't exist until typegen or a dev/build run).
+- No test runner or test script — don't invent test commands.
+- Baseline `npm run lint` exits 1 with 2 pre-existing `react-hooks/set-state-in-effect` errors
+  (`src/hooks/use-mobile.ts`, generated `src/components/ui/carousel.tsx`) and 1 unused-import
+  warning (`Image` in `src/app/page.tsx`). Add no new errors.
+
+## Backend, data flow and env
+
+- Express API is a separate repo at `../B14-A8-Cat_Harry_Backend` (port 8000); start it separately
+  for any data-backed page. There is no API client layer (`src/lib/api.ts` does not exist):
+  server components and client components call `fetch(`${NEXT_PUBLIC_API_URL}/...`)` directly,
+  usually with `cache: "no-store"`. Shapes in `src/lib/types/{studios,booking}.ts` are hand-written,
+  not generated.
+- Endpoints in use: `GET /studios`, `/studio/:id`, `/my-listings/:email`, `/my-bookings/:email`;
+  `POST /add-studio`, `/booking`; `PATCH /studio/:id`, `/my-bookings/:id`,
+  `/my-bookings/:id/confirm`; `DELETE /studio/:id`. Backend forces booking `status: "Pending"`
+  on POST; invoices show for Confirmed/Completed.
+- Host notifications: `BookingCard` POSTs `/booking` twice — a customer record and a copy keyed to
+  `studio.ownerEmail` with `isHostNotification: true` and `bookingRef` = customer id.
+  `/host-bookings` and `/my-bookings` both read `/my-bookings/:email` and split on
+  `isHostNotification`; host confirm/reject PATCHes both ids. Preserve this when touching bookings.
+- Auth lives **in this frontend**, not the API: `src/lib/auth.ts` (Better Auth + MongoDB adapter,
+  email/password min length 6, Google OAuth) is mounted by `src/app/api/auth/[...all]/route.ts`
+  via `toNextJsHandler(auth)`; the browser uses `src/lib/auth-client.ts` (`BETTER_AUTH_URL`).
+  Server pages read the session with `auth.api.getSession({ headers: await headers() })`; client
+  components use `authClient.useSession()`. Only `/studios/[id]` redirects to `/login` when signed
+  out; no `proxy.ts`/middleware exists (use `proxy.ts`, not deprecated `middleware.ts`, if adding
+  one). Don't add a second `/api/auth` route.
+- Forgot-password is a custom `"use server"` action in `src/components/authentication/route.ts`
+  (despite the name, not an API route): looks up the user via Better Auth's internal adapter,
+  hashes and writes the new password, and deletes existing sessions. No email is sent.
+- Invoices are generated client-side with jsPDF (`src/lib/invoice.ts`); they fall back to
+  `GET /studio/:id` when a booking lacks host fields.
+- `StudioForm` downscales uploaded photos to a base64 data URL ≤90 KB (Express body limit) and
+  stores it in `imageUrl`; there is no upload endpoint. Ratings in the grid/detail are derived
+  deterministically from the studio id — the API has no rating field.
+- `.env` is gitignored but present locally: `MONGODB_URI`, `MONGODB_DB`, `BETTER_AUTH_SECRET`,
+  `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_API_URL`,
+  `NEXT_PUBLIC_CLIENT_URL`. `NEXT_PUBLIC_API_URL` must be reachable from both browser and Next
+  server; `NEXT_PUBLIC_CLIENT_URL` is unused in `src/`. The backend has its own `.env`/`DB_NAME`.
 
 ## Non-obvious stack facts
 
@@ -53,17 +73,13 @@ route by `src/app/layout.tsx`. `/` is still an empty `<div>`.
   (`@theme inline`, `:root` / `.dark`, `--brand` → `text-brand` / `bg-brand`).
 - `@/*` → `src/*`. `<Image>` allows only `images.unsplash.com` and `images.pexels.com` unless you
   add a host to `images.remotePatterns`.
+- Next 16: `params`, `searchParams`, `cookies`, `headers` are async-only:
+  `const { id } = await params`.
 
-## Next 16 gotchas
+## Route state
 
-- `params`, `searchParams`, `cookies`, `headers` are async-only: `const { id } = await params`.
-- `middleware.ts` is deprecated; use `proxy.ts` (Node runtime only). None exists yet.
-
-## Current scaffolding state
-
-- Built pages: `/login`, `/register`, `/forgot-password` (client UI using `authClient` / the
-  forgot-password action).
-- `PagePlaceholder` stubs: `/add-studio`, `/edit-studio/[id]`, `/my-bookings`, `/my-studios`,
-  `/studios`, `/studios/[id]`.
-- Still 0-byte (unfinished, not broken): `src/lib/api.ts`,
-  `src/components/studio/{StudioCard,StudioForm}.tsx`.
+- Implemented: `/login`, `/register`, `/forgot-password`, `/studios`, `/studios/[id]`,
+  `/studios/edit/[id]`, `/add-studio`, `/my-listings`, `/my-bookings`, `/host-bookings`,
+  `/not-found`.
+- Still `PagePlaceholder` stubs: `/my-studios`, `/edit-studio/[id]` (legacy paths — the real
+  editor is `/studios/edit/[id]`; don't link to the stubs).

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import StudioForm from "@/components/studio/StudioForm";
-import type { IStudio } from "@/lib/types/studios";
+import type { IStudio } from "@/lib/types/StudioType";
 
 const EditStudioPage = async ({
   params,
