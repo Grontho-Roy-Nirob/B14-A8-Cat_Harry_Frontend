@@ -5,6 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
+import { highlightCode } from "@/lib/highlighter"
 import { CheckIcon, CopyIcon } from "lucide-react"
 
 const codeBlockVariants = cva(
@@ -143,12 +144,20 @@ function CodeBlockContent({
   wrap = false,
   lineNumbers = false,
   startLine = 1,
+  language,
   ...props
 }: React.ComponentProps<"pre"> & {
   wrap?: boolean
   lineNumbers?: boolean
   startLine?: number
+  language?: string
 }) {
+  // Highlight only when a language is given and the children are plain text.
+  const highlighted =
+    language && typeof children === "string"
+      ? highlightCode(children, language)
+      : null
+
   return (
     <pre
       data-slot="code-block-content"
@@ -168,13 +177,12 @@ function CodeBlockContent({
         className="grid min-h-lh min-w-max content-start in-data-numbered:grid-cols-[auto_1fr] in-data-wrap:min-w-0"
       >
         {lineNumbers && typeof children === "string"
-          ? children
-              .replace(/\n$/, "")
-              .split("\n")
-              .map((line, index) => (
+          ? (highlighted ?? children.replace(/\n$/, "").split("\n")).map(
+              (line, index) => (
                 <CodeBlockLine key={index}>{line}</CodeBlockLine>
-              ))
-          : children}
+              )
+            )
+          : (highlighted ?? children)}
       </code>
     </pre>
   )

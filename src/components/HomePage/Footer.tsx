@@ -139,7 +139,7 @@ export default function Footer() {
             <ul className="mt-4 space-y-2.5 text-sm text-slate-500">
               <li className="flex items-center gap-2.5">
                 <Mail className="size-4 shrink-0 text-[#ea580c]" />
-                hello@studiospace.com
+                studiospace@gmail.com
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="size-4 shrink-0 text-[#ea580c]" />
