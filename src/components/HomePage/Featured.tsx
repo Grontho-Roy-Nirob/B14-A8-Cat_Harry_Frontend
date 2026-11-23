@@ -1,74 +1,47 @@
-import { Suspense } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 
-import { ContentSkeleton, LoadingLabel } from "@/components/LoadingStates";
-import { Button } from "@/components/ui/button";
-import { getFeaturedStudios } from "@/lib/data";
 import { FeaturedStudios } from "./featured-studios";
 
-// Keep this section to at most 6 cards (matches the loading skeleton). The
-// shared getFeaturedStudios() also feeds the hero carousel, so cap here only.
-const CARD_COUNT = 6;
-
-async function FeaturedList() {
-  const studios = await getFeaturedStudios();
-
-  if (studios === null) {
-    return (
-      <p role="status" className="py-16 text-center text-sm text-muted-foreground">
-        Featured studios are unavailable right now. Please try again later.
-      </p>
-    );
-  }
-
-  if (studios.length === 0) {
-    return (
-      <p className="py-16 text-center text-sm text-muted-foreground">
-        New spaces are on their way. Check back soon!
-      </p>
-    );
-  }
-
-  return <FeaturedStudios studios={studios.slice(0, CARD_COUNT)} />;
-}
-
-function FeaturedSkeleton() {
-  return (
-    <div className="space-y-6">
-      <LoadingLabel>Loading featured studios...</LoadingLabel>
-      <ContentSkeleton count={CARD_COUNT} />
-    </div>
+export default async function Featured() {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/featured-studios`,
+    { cache: "no-store" },
   );
-}
 
-export default function Featured() {
+  const studios = await response.json();
+
+  const featured = Array.isArray(studios) ? studios.slice(0, 6) : [];
+
   return (
     <section id="featured-studios" className="w-full bg-[#f8f9fa] px-6 py-16">
       <div className="mx-auto max-w-7xl">
+        {/* Heading */}
         <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="text-xs font-bold tracking-[0.16em] text-[#ea580c] uppercase">
               Trending studios
             </p>
-            <h2 className="mt-3 text-3xl font-light tracking-tight text-foreground md:text-4xl">
+            <h2 className="mt-3 text-3xl font-light tracking-tight md:text-4xl">
               Fresh spaces, ready this week
             </h2>
           </div>
-          <Button
-            nativeButton={false}
-            render={<Link href="/studios" />}
-            variant="outline"
-            className="h-11 rounded-lg border-slate-300 bg-white px-6 text-xs font-semibold text-foreground hover:bg-slate-50"
+
+          <Link
+            href="/studios"
+            className="inline-flex h-11 items-center rounded-lg border border-slate-300 bg-white px-6 text-xs font-semibold hover:bg-slate-50"
           >
             View all studios
-            <ArrowRight />
-          </Button>
+          </Link>
         </div>
 
-        <Suspense fallback={<FeaturedSkeleton />}>
-          <FeaturedList />
-        </Suspense>
+        {/* Studio cards */}
+        {featured.length === 0 ? (
+          <p className="py-16 text-center text-sm text-slate-500">
+            New spaces are on their way. Check back soon!
+          </p>
+        ) : (
+          <FeaturedStudios studios={featured} />
+        )}
       </div>
     </section>
   );

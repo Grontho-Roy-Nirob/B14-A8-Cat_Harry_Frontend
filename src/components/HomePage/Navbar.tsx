@@ -52,23 +52,22 @@ const accountLinks = [
   { label: "My Bookings", href: "/my-bookings", icon: CalendarCheck },
 ];
 
+
 function isActive(pathname: string, href: string) {
   if (href.includes("#")) return false;
   if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
+  return pathname === href || pathname.startsWith(href + "/");
 }
 
+
 function initials(name?: string | null) {
-  return (
-    name
-      ?.trim()
-      .split(/\s+/)
-      .map((part) => part[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase() || "U"
-  );
+  const words = (name || "").trim().split(" ").filter(Boolean);
+  const first = (words[0] || "").charAt(0);
+  const second = (words[1] || "").charAt(0);
+
+  return (first + second).toUpperCase() || "U";
 }
+
 
 function toggleTheme() {
   document.documentElement.classList.toggle("dark");

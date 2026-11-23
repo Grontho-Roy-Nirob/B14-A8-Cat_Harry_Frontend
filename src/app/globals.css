@@ -132,3 +132,8 @@
     @apply font-sans;
   }
 }
+
+/* Hero slider dots (Swiper) */
+.hero-swiper .swiper-pagination-bullet-active {
+  background: #f97316;
+}
