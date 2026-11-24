@@ -16,6 +16,7 @@ import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { toast } from "@/components/ui/toast";
+import { revalidateStudios } from "@/components/authentication/route";
 
 const DeleteListingDialog = ({
   id,
@@ -42,6 +43,10 @@ const DeleteListingDialog = ({
       });
       return;
     }
+
+    // Invalidate the cached Explore Studios data on the server, then refresh
+    // this route so the My Listings table reflects the deletion immediately.
+    await revalidateStudios();
 
     toast.add({
       type: "success",

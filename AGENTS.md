@@ -48,9 +48,9 @@ components using the repo's Embla-based `components/ui/carousel.tsx`.
   via `toNextJsHandler(auth)`; the browser uses `src/lib/auth-client.ts` (`BETTER_AUTH_URL`).
   Server pages read the session with `auth.api.getSession({ headers: await headers() })`; client
   components use `authClient.useSession()`. `src/proxy.ts` uses the same server-side check to guard
-  `/add-studio`, `/my-listings`, `/my-bookings`, `/host-bookings`, `/my-studios`, `/edit-studio/*`
-  and `/studios/edit/*`, redirecting to `/login?redirect=<path>`; `src/lib/redirect.ts` validates
-  the path. Public routes and `/api/auth` stay open. Never use `middleware.ts` (deprecated in Next
+  `/add-studio`, `/my-listings`, `/my-bookings`, `/host-bookings`
+  and `/studios/edit/*`, redirecting to `/login`. Public routes and `/api/auth` stay open.
+  Never use `middleware.ts` (deprecated in Next
   16). Don't add a second `/api/auth` route.
 - Forgot-password is a custom `"use server"` action in `src/components/authentication/route.ts`
   (despite the name, not an API route): two-step flow (email check, then set password). It uses
@@ -91,5 +91,3 @@ components using the repo's Embla-based `components/ui/carousel.tsx`.
 - Implemented: `/`, `/login`, `/register`, `/forgot-password`, `/studios`, `/studios/[id]`,
   `/studios/edit/[id]`, `/add-studio`, `/my-listings`, `/my-bookings`, `/host-bookings`,
   `/not-found`.
-- Still `PagePlaceholder` stubs: `/my-studios`, `/edit-studio/[id]` (legacy paths — the real
-  editor is `/studios/edit/[id]`; don't link to the stubs).

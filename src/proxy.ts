@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 import { auth } from "@/lib/auth";
-import { REDIRECT_PARAM } from "@/lib/redirect";
 
 export async function proxy(request: NextRequest) {
   let isAuthenticated = false;
@@ -16,10 +15,7 @@ export async function proxy(request: NextRequest) {
 
   if (isAuthenticated) return NextResponse.next();
 
-  const next = encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search);
-  return NextResponse.redirect(
-    new URL(`/login?${REDIRECT_PARAM}=${next}`, request.url)
-  );
+  return NextResponse.redirect(new URL("/login", request.url));
 }
 
 export const config = {
@@ -28,8 +24,6 @@ export const config = {
     "/my-listings/:path*",
     "/my-bookings/:path*",
     "/host-bookings/:path*",
-    "/my-studios/:path*",
-    "/edit-studio/:path*",
     "/studios/edit/:path*",
   ],
 };

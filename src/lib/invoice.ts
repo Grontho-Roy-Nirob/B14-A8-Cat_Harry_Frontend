@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf";
 
-import type { IBooking } from "@/lib/types/BookingType";
-import type { IStudio } from "@/lib/types/StudioType";
+import type { IBooking } from "@/types/BookingType";
+import type { IStudio } from "@/types/StudioType";
 
 const text = (value?: string | number) =>
   value === undefined || value === null || value === "" ? "—" : String(value);

@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { rating } from "@/lib/studio";
-import type { IStudio } from "@/lib/types/StudioType";
+import type { IStudio } from "@/types/StudioType";
 
 const categories = [
   "All",
@@ -32,8 +32,6 @@ const categories = [
   "Workshop",
 ];
 
-// Base UI renders the raw value in <SelectValue> unless the root gets `items`,
-// which maps values to the labels displayed in the trigger.
 const priceOptions = [
   { value: "any", label: "Any price" },
   { value: "under50", label: "Under $50" },
@@ -47,11 +45,10 @@ const sortOptions = [
   { value: "price-high", label: "Price: high to low" },
 ];
 
-// Older listings were saved as "Film Stage"; treat them as "Sound Stage".
 const matchesCategory = (studioCategory: string, selected: string) => {
   if (selected === "All") return true;
   if (selected === "Sound Stage") {
-    return studioCategory === "Sound Stage" || studioCategory === "Film Stage";
+    return studioCategory === "Sound Stage";
   }
   return studioCategory === selected;
 };
@@ -64,9 +61,9 @@ export function StudiosGrid({
   initialCategory?: string;
 }) {
   const [query, setQuery] = useState("");
-  const initial = initialCategory === "Film Stage" ? "Sound Stage" : initialCategory;
+  const initial = initialCategory;
   const [category, setCategory] = useState(
-    categories.includes(initial) ? initial : "All"
+    categories.includes(initial) ? initial : "All",
   );
   const [price, setPrice] = useState("any");
   const [sort, setSort] = useState("rating");
@@ -217,7 +214,7 @@ export function StudiosGrid({
       <section className="w-full bg-[#f8f9fa] px-6 py-10">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {visible.map((studio) => (
+            {visible.map((studio, index) => (
               <article
                 key={studio._id}
                 className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
@@ -228,6 +225,7 @@ export function StudiosGrid({
                     alt={studio.title}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    loading={index < 3 ? "eager" : "lazy"}
                     className="object-cover"
                   />
                   <span className="absolute top-3 left-3 rounded-md bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm">

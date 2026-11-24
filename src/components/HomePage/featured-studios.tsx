@@ -3,7 +3,7 @@ import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
 
 import { rating } from "@/lib/studio";
-import type { IStudio } from "@/lib/types/StudioType";
+import type { IStudio } from "@/types/StudioType";
 
 // A simple card grid. Each studio becomes one card.
 export function FeaturedStudios({ studios }: { studios: IStudio[] }) {
@@ -20,6 +20,7 @@ export function FeaturedStudios({ studios }: { studios: IStudio[] }) {
               src={studio.imageUrl}
               alt={studio.title}
               fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover"
             />
             <span className="absolute top-3 left-3 rounded-md bg-white/95 px-2.5 py-1 text-[11px] font-semibold shadow-sm">
@@ -30,7 +31,9 @@ export function FeaturedStudios({ studios }: { studios: IStudio[] }) {
           {/* Details */}
           <div className="p-4">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="truncate text-base font-semibold">{studio.title}</h3>
+              <h3 className="truncate text-base font-semibold">
+                {studio.title}
+              </h3>
               <span className="flex items-center gap-1 rounded-md bg-orange-50 px-2 py-1 text-xs font-semibold text-[#ea580c]">
                 <Star className="size-3 fill-[#ea580c]" />
                 {rating(studio._id)}

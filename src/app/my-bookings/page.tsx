@@ -4,7 +4,7 @@ import { ChevronRight } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import MyBookingsList from "@/components/booking/MyBookingsList";
-import type { IBooking } from "@/lib/types/BookingType";
+import type { IBooking } from "@/types/BookingType";
 
 const MyBookingsPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });

@@ -18,7 +18,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth-client"
-import { REDIRECT_PARAM, requestedPath } from "@/lib/redirect"
 import { cn } from "@/lib/utils"
 
 type SignUpForm = {
@@ -120,12 +119,7 @@ export default function RegisterPage() {
         title: "Account created!",
         description: "Welcome to StudioSpace. Let's get you signed in.",
       })
-      const target = requestedPath()
-      router.replace(
-        target === "/"
-          ? "/login"
-          : `/login?${REDIRECT_PARAM}=${encodeURIComponent(target)}`
-      )
+      router.push("/login")
     }
 
     if (error) {
@@ -140,7 +134,7 @@ export default function RegisterPage() {
   const handleGoogleSignUp = async () => {
     const { error } = await authClient.signIn.social({
       provider: "google",
-      callbackURL: requestedPath(),
+      callbackURL: "/",
     })
 
     if (error) {
@@ -340,14 +334,6 @@ export default function RegisterPage() {
                       Already have an account?{" "}
                       <Link
                         href="/login"
-                        onClick={(event) => {
-                          const target = requestedPath()
-                          if (target === "/") return
-                          event.preventDefault()
-                          router.push(
-                            `/login?${REDIRECT_PARAM}=${encodeURIComponent(target)}`
-                          )
-                        }}
                         className="font-semibold text-brand hover:underline"
                       >
                         Login

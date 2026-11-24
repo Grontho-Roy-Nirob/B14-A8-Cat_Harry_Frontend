@@ -4,14 +4,12 @@ import { ChevronRight } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import HostBookingsList from "@/components/booking/HostBookingsList";
-import type { IBooking } from "@/lib/types/BookingType";
+import type { IBooking } from "@/types/BookingType";
 
 const HostBookingsPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
   const email = session?.user?.email ?? "";
 
-  // Host notification records are stored under the owner's email by POST /booking.
-  // This reuses the existing /my-bookings/:email endpoint — no new API needed.
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${email}`,
     { cache: "no-store" },

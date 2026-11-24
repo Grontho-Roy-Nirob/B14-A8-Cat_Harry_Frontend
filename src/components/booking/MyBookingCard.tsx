@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/booking/StatusBadge";
 import { toast } from "@/components/ui/toast";
 import { downloadInvoice } from "@/lib/invoice";
-import type { IBooking } from "@/lib/types/BookingType";
+import type { IBooking } from "@/types/BookingType";
 
 const imageUrl = (booking: IBooking) =>
   booking.studioImage || booking.imageUrl || booking.image || "/favicon.ico";

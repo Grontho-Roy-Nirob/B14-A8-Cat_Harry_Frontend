@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import MyStudioListingList from "@/components/studio/MyStudioListingList";
-import type { IStudio } from "@/lib/types/StudioType";
+import type { IStudio } from "@/types/StudioType";
 
 const MyListingsPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });

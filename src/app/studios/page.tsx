@@ -3,11 +3,11 @@ import { Suspense } from "react";
 import { ContentSkeleton, LoadingLabel } from "@/components/LoadingStates";
 import { StudiosGrid } from "@/components/studio/studios-grid";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { IStudio } from "@/lib/types/StudioType";
+import type { IStudio } from "@/types/StudioType";
 
 async function Studios({ category }: { category?: string }) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/studios`, {
-    cache: "no-store",
+    next: { revalidate: 60 },
   });
   const data: IStudio[] = await res.json();
 

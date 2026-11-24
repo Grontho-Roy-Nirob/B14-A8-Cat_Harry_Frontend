@@ -9,20 +9,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
-import type { IBooking } from "@/lib/types/BookingType";
-import type { IStudio } from "@/lib/types/StudioType";
+import type { IBooking } from "@/types/BookingType";
+import type { IStudio } from "@/types/StudioType";
 
 const hours = [
-  "9:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "1:00",
-  "2:00",
-  "3:00",
-  "4:00",
-  "5:00",
+  "9:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "12:00 PM",
+  "1:00 PM",
+  "2:00 PM",
+  "3:00 PM",
+  "4:00 PM",
+  "5:00 PM",
+  "6:00 PM",
+  "7:00 PM",
+  "8:00 PM",
+  "9:00 PM",
 ];
+
+// 12-hour AM/PM keys above so existing bookings still block their slots.
+const toHourKey = (value: string) => {
+  if (!value) return value;
+  const match = value.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (!match) return value;
+  const hour = Number(match[1]);
+  const minute = match[2];
+  const suffix = match[3]?.toUpperCase();
+  if (!Number.isFinite(hour)) return value;
+  if (suffix) return `${hour}:${minute} ${suffix}`;
+  if (hour > 12) return `${hour - 12}:${minute} PM`;
+  return `${hour}:${minute} ${hour < 12 ? "AM" : "PM"}`;
+};
 
 // Local calendar date — toISOString().slice(0, 10) is UTC and can be a day off.
 const todayKey = () => {
@@ -61,8 +79,8 @@ const blockedHoursFor = (
     if (booking.studioId !== studioId || booking.date !== date) continue;
     if ((booking.status || "Pending") === "Cancelled") continue;
 
-    const start = hours.indexOf(booking.startTime ?? "");
-    const end = hours.indexOf(booking.endTime ?? "");
+    const start = hours.indexOf(toHourKey(booking.startTime ?? ""));
+    const end = hours.indexOf(toHourKey(booking.endTime ?? ""));
     if (start === -1 || end === -1 || end <= start) continue;
 
     for (let index = start; index < end; index += 1) blocked.add(hours[index]);
@@ -82,9 +100,6 @@ const BookingCard = ({ studio }: { studio: IStudio }) => {
   const [submitting, setSubmitting] = useState(false);
 
   const email = session?.user?.email;
-  // Host notifications are stored under the owner's email; the customer's own
-  // bookings cover legacy records and studios without an owner email. Fetch both
-  // so slots taken by other people are blocked too.
   const lookupKey = [studio.ownerEmail, email]
     .filter((value): value is string => Boolean(value))
     .join("|");
@@ -203,8 +218,6 @@ const BookingCard = ({ studio }: { studio: IStudio }) => {
 
     setSubmitting(true);
     try {
-      // Re-check immediately before booking: another guest may have taken the
-      // slot since the list was loaded or while this request was being prepared.
       const lists = await Promise.all(
         lookupKey.split("|").map(fetchBookingsFor),
       );
@@ -254,8 +267,6 @@ const BookingCard = ({ studio }: { studio: IStudio }) => {
 
       if (!res.ok) throw new Error("Booking failed");
 
-      // Host notification record: stored under the owner's email so the host
-      // dashboard can read it with the existing /my-bookings/:email endpoint.
       if (studio.ownerEmail && studio.ownerEmail !== booking.email) {
         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/booking`, {
           method: "POST",
@@ -272,8 +283,6 @@ const BookingCard = ({ studio }: { studio: IStudio }) => {
         });
       }
 
-      // Block the chosen hours locally as well, so a second booking can't be
-      // submitted for the same slot from this page.
       setBookedHours((current) => [...new Set([...current, ...selectedHours])]);
       setStartTime("");
       setEndTime("");

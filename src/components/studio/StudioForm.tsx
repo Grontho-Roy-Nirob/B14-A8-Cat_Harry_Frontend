@@ -17,8 +17,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
+import { revalidateStudios } from "@/components/authentication/route";
 import { authClient } from "@/lib/auth-client";
-import type { IStudio } from "@/lib/types/StudioType";
+import type { IStudio } from "@/types/StudioType";
 
 const categories = [
   "Photo Studio",
@@ -180,6 +181,10 @@ const StudioForm = ({ studio }: { studio?: IStudio }) => {
       });
       return;
     }
+
+    // Invalidate the cached Explore Studios data so /studios shows this change
+    // immediately (both Add and Edit go through this handler).
+    await revalidateStudios();
 
     toast.add({
       type: "success",

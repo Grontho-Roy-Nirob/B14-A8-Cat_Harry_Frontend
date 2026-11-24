@@ -12,7 +12,7 @@ import "swiper/css/pagination";
 
 import { Button } from "@/components/ui/button";
 import { LoadingLabel } from "@/components/LoadingStates";
-import type { IStudio } from "@/lib/types/StudioType";
+import type { IStudio } from "@/types/StudioType";
 
 // Only the headline text is static. The image and studio details come from the API.
 const slideCopy = [
@@ -51,17 +51,15 @@ export default function Banner() {
         );
 
         const data = await response.json();
-
-        const latestStudios = Array.isArray(data) ? data.slice(-3) : [];
-        setStudios(latestStudios);
-
-        setIsLoading(false);
+        setStudios(Array.isArray(data) ? data.slice(-3) : []);
       } catch {
+        setStudios([]);
+      } finally {
         setIsLoading(false);
       }
     }
-    
-    loadStudios();
+
+    void loadStudios();
   }, []);
 
   if (isLoading) {
@@ -166,7 +164,7 @@ export default function Banner() {
                     src={studio.imageUrl}
                     alt={`${studio.title} studio space`}
                     fill
-                    priority={index === 0}
+                    loading={index === 0 ? "eager" : "lazy"}
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover"
                   />

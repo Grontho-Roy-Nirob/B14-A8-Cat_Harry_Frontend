@@ -4,7 +4,7 @@ import { Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import DeleteListingDialog from "@/components/studio/DeleteListingDialog";
-import type { IStudio } from "@/lib/types/StudioType";
+import type { IStudio } from "@/types/StudioType";
 
 const MyStudioListingList = ({ studios }: { studios: IStudio[] }) => {
   if (studios.length === 0) {

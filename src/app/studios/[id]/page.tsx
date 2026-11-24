@@ -15,7 +15,7 @@ import {
 import BookingCard from "@/components/booking/BookingCard";
 import { auth } from "@/lib/auth";
 import { rating } from "@/lib/studio";
-import type { IStudio } from "@/lib/types/StudioType";
+import type { IStudio } from "@/types/StudioType";
 
 const StudioDetailsPage = async ({
   params,
@@ -23,15 +23,31 @@ const StudioDetailsPage = async ({
   params: Promise<{ id: string }>;
 }) => {
   const { id } = await params;
+  const requestHeaders = await headers();
 
-  const session = await auth.api.getSession({ headers: await headers() });
+  // Auth check and studio lookup are independent — run them in parallel.
+  const [session, res] = await Promise.all([
+    auth.api.getSession({ headers: requestHeaders }),
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/studio/${id}`, {
+      cache: "no-store",
+    }),
+  ]);
+
   if (!session?.user) redirect("/login");
-
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/studio/${id}`, {
-    cache: "no-store",
-  });
   if (!res.ok) notFound();
-  const studio: IStudio = await res.json();
+
+
+  const contentType = res.headers.get("content-type") ?? "";
+  const body = await res.text();
+  if (!body.trim() || !contentType.includes("application/json")) notFound();
+
+  let studio: IStudio | null = null;
+  try {
+    studio = JSON.parse(body) as IStudio;
+  } catch {
+    // Invalid JSON is handled as not-found below.
+  }
+  if (!studio?._id) notFound();
 
   const specs = [
     {
@@ -76,8 +92,8 @@ const StudioDetailsPage = async ({
             src={studio.imageUrl}
             alt={studio.title}
             fill
-            priority
-            sizes="100vw"
+            loading="eager"
+            sizes="(max-width: 1200px) 100vw, 1152px"
             className="object-cover"
           />
         </div>

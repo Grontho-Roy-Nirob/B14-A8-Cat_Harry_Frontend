@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-
 import MyBookingCard from "@/components/booking/MyBookingCard";
 import { sortBookingsNewestFirst } from "@/lib/booking";
-import type { IBooking } from "@/lib/types/BookingType";
+import type { IBooking } from "@/types/BookingType";
 
 const tabs = ["All bookings", "Pending", "Confirmed", "Cancelled"];
 
